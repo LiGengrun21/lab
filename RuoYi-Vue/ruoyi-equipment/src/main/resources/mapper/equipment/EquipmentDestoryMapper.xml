@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.equipment.mapper.EquipmentDestoryMapper">
+
+    <resultMap type="EquipmentDestory" id="EquipmentDestoryResult">
+        <result property="destoryId"    column="destory_id"    />
+        <result property="equipmentId"    column="equipment_id"    />
+        <result property="destoryReason"    column="destory_reason"    />
+        <result property="destoryPerson"    column="destory_person"    />
+        <result property="destoryTime"    column="destory_time"    />
+
+        <association property="zjutEquipment" javaType="ZjutEquipment">
+                <id property="equipmentId" column="equipment_id"/>
+                <result property="equipmentName"    column="equipment_name"    />
+                <result property="equipmentAdmin"    column="equipment_admin"    />
+                <result property="equipmentSnNumber"    column="equipment_sn_number"    />
+                <result property="equipmentModel"    column="equipment_model"    />
+                <result property="equipmentStatus"    column="equipment_status"/>
+        </association>
+
+        <collection property="destoryFileList" ofType="DestoryFile">
+            <result property="destoryId"    column="destory_id"     />
+            <result property="destoryFileId"    column="destory_file_id"    />
+            <result property="destoryFileName"    column="destory_file_name"    />
+            <result property="destoryFilePath"    column="destory_file_path"    />
+        </collection>
+
+    </resultMap>
+
+    <sql id="selectEquipmentDestoryVo">
+        SELECT equipment_destory.destory_id, equipment_destory.equipment_id, equipment_name, equipment_admin, equipment_model, equipment_sn_number, destory_person, destory_reason, destory_time, equipment_status,
+               destory_file_id, destory_file_name, destory_file_path
+        FROM zjut_equipment
+                 JOIN equipment_destory
+                      ON equipment_destory.equipment_id = zjut_equipment.equipment_id
+                 LEFT JOIN destory_file
+                      ON destory_file.destory_id = equipment_destory.destory_id
+        ORDER BY equipment_destory.destory_id DESC
+    </sql>
+
+    <select id="selectEquipmentDestoryList" parameterType="EquipmentDestory" resultMap="EquipmentDestoryResult">
+        <include refid="selectEquipmentDestoryVo"/>
+        <where>
+            <if test="equipmentId != null "> and equipment_id = #{equipmentId}</if>
+            <if test="destoryReason != null  and destoryReason != ''"> and destory_reason = #{destoryReason}</if>
+            <if test="destoryPerson != null  and destoryPerson != ''"> and destory_person = #{destoryPerson}</if>
+            <if test="destoryTime != null "> and destory_time = #{destoryTime}</if>
+        </where>
+    </select>
+
+    <select id="selectEquipmentDestoryById" parameterType="Long" resultMap="EquipmentDestoryResult">
+        <include refid="selectEquipmentDestoryVo"/>
+        where destory_id = #{destoryId}
+    </select>
+
+    <insert id="insertEquipmentDestory" parameterType="EquipmentDestory">
+        insert into equipment_destory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="destoryId != null">destory_id,</if>
+            <if test="equipmentId != null">equipment_id,</if>
+            <if test="destoryReason != null and destoryReason != ''">destory_reason,</if>
+            <if test="destoryPerson != null and destoryPerson != ''">destory_person,</if>
+            <if test="destoryTime != null">destory_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="destoryId != null">#{destoryId},</if>
+            <if test="equipmentId != null">#{equipmentId},</if>
+            <if test="destoryReason != null and destoryReason != ''">#{destoryReason},</if>
+            <if test="destoryPerson != null and destoryPerson != ''">#{destoryPerson},</if>
+            <if test="destoryTime != null">#{destoryTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEquipmentDestory" parameterType="EquipmentDestory">
+        update equipment_destory
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id = #{equipmentId},</if>
+            <if test="destoryReason != null and destoryReason != ''">destory_reason = #{destoryReason},</if>
+            <if test="destoryPerson != null and destoryPerson != ''">destory_person = #{destoryPerson},</if>
+            <if test="destoryTime != null">destory_time = #{destoryTime},</if>
+        </trim>
+        where destory_id = #{destoryId}
+    </update>
+
+    <delete id="deleteEquipmentDestoryById" parameterType="Long">
+        delete from equipment_destory where destory_id = #{destoryId}
+    </delete>
+
+    <delete id="deleteEquipmentDestoryByIds" parameterType="String">
+        delete from equipment_destory where destory_id in
+        <foreach item="destoryId" collection="array" open="(" separator="," close=")">
+            #{destoryId}
+        </foreach>
+    </delete>
+</mapper>

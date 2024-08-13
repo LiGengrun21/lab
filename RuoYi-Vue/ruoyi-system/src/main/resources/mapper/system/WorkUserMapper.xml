@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.WorkUserMapper">
+
+    <resultMap type="WorkUser" id="WorkUserResult">
+        <result property="workUserId"    column="work_user_id"    />
+        <result property="userId"    column="user_id"    />
+        <association property="user">
+            <id property="userId" column="user_id"/>
+            <result property="userName" column="user_name"/>
+            <result property="nickName" column="nick_name"/>
+            <result property="phonenumber" column="phonenumber"/>
+            <result property="email" column="email"/>
+            <result property="sex" column="sex"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectWorkUserVo">
+        select * from work_user join sys_user using(user_id)
+    </sql>
+
+    <select id="selectAll" resultMap="WorkUserResult">
+        <include refid="selectWorkUserVo"/>
+    </select>
+
+    <select id="selectWorkUserByUserId" parameterType="Long" resultMap="WorkUserResult">
+        <include refid="selectWorkUserVo"/>
+        where user_id = #{userId}
+    </select>
+
+    <select id="selectWorkUserById" parameterType="Long" resultMap="WorkUserResult">
+        <include refid="selectWorkUserVo"/>
+        where work_user_id = #{workUserId}
+    </select>
+
+    <insert id="insertWorkUser" parameterType="WorkUser" useGeneratedKeys="true" keyProperty="workUserId">
+        insert into work_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWorkUser" parameterType="WorkUser">
+        update work_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+        </trim>
+        where work_user_id = #{workUserId}
+    </update>
+
+    <delete id="deleteWorkUserById" parameterType="Long">
+        delete from work_user where work_user_id = #{workUserId}
+    </delete>
+
+    <delete id="deleteWorkUserByIds" parameterType="String">
+        delete from work_user where work_user_id in
+        <foreach item="workUserId" collection="array" open="(" separator="," close=")">
+            #{workUserId}
+        </foreach>
+    </delete>
+</mapper>

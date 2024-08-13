@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.equipment.mapper.EquipmentWarningMapper">
+
+    <resultMap type="EquipmentWarning" id="EquipmentWarningResult">
+        <result property="warningId"    column="warning_id"    />
+        <result property="equipmentId"    column="equipment_id"    />
+        <result property="equipmentName"    column="equipment_name"    />
+        <result property="warningType"    column="warning_type"    />
+        <result property="warningTime"    column="warning_time"    />
+    </resultMap>
+
+    <sql id="selectEquipmentWarningVo">
+        select warning_id, equipment_id, equipment_name, warning_type, warning_time from equipment_warning
+    </sql>
+
+    <select id="selectEquipmentWarningList" parameterType="EquipmentWarning" resultMap="EquipmentWarningResult">
+        <include refid="selectEquipmentWarningVo"/>
+        <where>
+            <if test="equipmentId != null "> and equipment_id = #{equipmentId}</if>
+            <if test="equipmentName != null  and equipmentName != ''"> and equipment_name like concat('%', #{equipmentName}, '%')</if>
+            <if test="warningType != null  and warningType != ''"> and warning_type = #{warningType}</if>
+        </where>
+    </select>
+
+    <select id="selectEquipmentWarningById" parameterType="Long" resultMap="EquipmentWarningResult">
+        <include refid="selectEquipmentWarningVo"/>
+        where warning_id = #{warningId}
+    </select>
+
+    <insert id="insertEquipmentWarning" parameterType="EquipmentWarning">
+        insert into equipment_warning
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="warningId != null">warning_id,</if>
+            <if test="equipmentId != null">equipment_id,</if>
+            <if test="equipmentName != null">equipment_name,</if>
+            <if test="warningType != null and warningType != ''">warning_type,</if>
+            <if test="warningTime != null and warningTime != ''">warning_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="warningId != null">#{warningId},</if>
+            <if test="equipmentId != null">#{equipmentId},</if>
+            <if test="equipmentName != null">#{equipmentName},</if>
+            <if test="warningType != null and warningType != ''">#{warningType},</if>
+            <if test="warningTime != null and warningTime != ''">#{warningTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEquipmentWarning" parameterType="EquipmentWarning">
+        update equipment_warning
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id = #{equipmentId},</if>
+            <if test="equipmentName != null">equipment_name = #{equipmentName},</if>
+            <if test="warningType != null and warningType != ''">warning_type = #{warningType},</if>
+            <if test="warningTime != null and warningTime != ''">warning_time = #{warningTime},</if>
+        </trim>
+        where warning_id = #{warningId}
+    </update>
+
+    <delete id="deleteEquipmentWarningById" parameterType="Long">
+        delete from equipment_warning where warning_id = #{warningId}
+    </delete>
+
+    <delete id="deleteEquipmentWarningByIds" parameterType="String">
+        delete from equipment_warning where warning_id in
+        <foreach item="warningId" collection="array" open="(" separator="," close=")">
+            #{warningId}
+        </foreach>
+    </delete>
+</mapper>

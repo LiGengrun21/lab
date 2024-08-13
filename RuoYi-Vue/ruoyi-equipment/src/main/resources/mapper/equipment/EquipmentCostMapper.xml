@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.equipment.mapper.EquipmentCostMapper">
+    <resultMap type="EquipmentCost" id="EquipmentCostResult">
+        <result property="costId" column="cost_id"/>
+        <result property="equipmentId" column="equipment_id"/>
+        <result property="costNumber" column="cost_number"/>
+        <result property="minInterval" column="min_interval"/>
+        <result property="artificialCostNumber" column="artificial_cost_number"/>
+        <result property="lastTimeInterval" column="last_time_interval"/>
+        <result property="costType" column="cost_type"/>
+    </resultMap>
+    <sql id="selectEquipmentCostVo">
+        select cost_id, equipment_id, cost_number, min_interval, cost_type, artificial_cost_number, last_time_interval
+        from equipment_cost
+    </sql>
+    <select id="selectEquipmentCostList" parameterType="EquipmentCost" resultMap="EquipmentCostResult">
+        <include refid="selectEquipmentCostVo"/>
+        <where>
+            <if test="equipmentId != null ">and equipment_id = #{equipmentId}</if>
+            <if test="costNumber != null ">and cost_number = #{costNumber}</if>
+            <if test="minInterval != null ">and min_interval = #{minInterval}</if>
+            <if test="artificialCostNumber != null ">and artificial_cost_number = #{artificialCostNumber}</if>
+            <if test="lastTimeInterval != null ">and last_time_interval = #{lastTimeInterval}</if>
+            <if test="costType != null  and costType != ''">and cost_type = #{costType}</if>
+        </where>
+    </select>
+    <select id="selectEquipmentCostById" parameterType="Long" resultMap="EquipmentCostResult">
+        <include refid="selectEquipmentCostVo"/>
+        where cost_id = #{costId}
+    </select>
+    <select id="selectCostTypesByEquipmentId" resultType="java.lang.String">
+        select cost_type
+        from equipment_cost
+        where equipment_id=#{equipmentId}
+    </select>
+    <insert id="insertEquipmentCost" parameterType="EquipmentCost" useGeneratedKeys="true" keyProperty="costId">
+        insert into equipment_cost
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id,</if>
+            <if test="costNumber != null">cost_number,</if>
+            <if test="minInterval != null">min_interval,</if>
+            <if test="artificialCostNumber != null">artificial_cost_number,</if>
+            <if test="lastTimeInterval != null">last_time_interval,</if>
+            <if test="costType != null">cost_type,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="equipmentId != null">#{equipmentId},</if>
+            <if test="costNumber != null">#{costNumber},</if>
+            <if test="minInterval != null">#{minInterval},</if>
+            <if test="artificialCostNumber != null">#{artificialCostNumber},</if>
+            <if test="lastTimeInterval != null">#{lastTimeInterval},</if>
+            <if test="costType != null">#{costType},</if>
+        </trim>
+    </insert>
+    <update id="updateEquipmentCost" parameterType="EquipmentCost">
+        update equipment_cost
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id = #{equipmentId},</if>
+            <if test="costNumber != null">cost_number = #{costNumber},</if>
+            <if test="minInterval != null">min_interval = #{minInterval},</if>
+            <if test="artificialCostNumber != null ">artificial_cost_number = #{artificialCostNumber},</if>
+            <if test="lastTimeInterval != null ">last_time_interval = #{lastTimeInterval},</if>
+            <if test="costType != null">cost_type = #{costType},</if>
+        </trim>
+        where cost_id = #{costId}
+    </update>
+    <delete id="deleteEquipmentCostById" parameterType="Long">
+        delete
+        from equipment_cost
+        where cost_id=#{costId}
+    </delete>
+    <delete id="deleteEquipmentCostByIds" parameterType="String">
+        delete from equipment_cost where cost_id in
+        <foreach item="costId" collection="array" open="(" separator="," close=")">
+            #{costId}
+        </foreach>
+    </delete>
+</mapper>

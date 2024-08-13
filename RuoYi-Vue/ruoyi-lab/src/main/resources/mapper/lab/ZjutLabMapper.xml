@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.lab.mapper.ZjutLabMapper">
+
+    <resultMap type="ZjutLab" id="ZjutLabResult">
+        <result property="labId"    column="lab_id"    />
+        <result property="labNum"    column="lab_num"    />
+        <result property="labAd"    column="lab_ad"    />
+        <result property="adminId"    column="admin_id"    />
+        <result property="equipmentNum"    column="equipment_num"    />
+        <result property="labType"    column="lab_type"    />
+
+        <collection property="zjutEquipmentList" ofType="ZjutEquipment">
+            <result property="labId"    column="lab_id"    />
+            <result property="equipmentId"    column="equipment_id"    />
+            <result property="equipmentName"    column="equipment_name"    />
+            <result property="equipmentSnNumber"    column="equipment_sn_number"    />
+            <result property="userId"    column="admin_id"    />
+            <result property="equipmentStatus"    column="equipment_status"    />
+            <result property="equipmentModel"    column="equipment_model"    />
+        </collection>
+
+        <collection property="labSubscribeList" ofType="LabSubscribe">
+            <result property="labId"    column="lab_id"    />
+            <result property="labSubscribeDate"  column="lab_subscribe_date"   />
+            <result property="labSubscribeId"    column="lab_subscribe_id"    />
+            <result property="labSubscribeStartTime"    column="lab_subscribe_start_time"    />
+            <result property="labSubscribeEndTime"    column="lab_subscribe_end_time"    />
+            <result property="labSubscribePerson"    column="lab_subscribe_person"    />
+            <result property="labSubscribePhone"    column="lab_subscribe_phone"    />
+        </collection>
+
+    </resultMap>
+
+    <sql id="selectZjutLabEquipmentVo">
+        SELECT zjut_lab.lab_id, lab_num, lab_ad, lab_type, zjut_lab.admin_id, equipment_num, equipment_id, equipment_name, equipment_sn_number ,zjut_equipment.admin_id, equipment_status, equipment_model
+        FROM zjut_lab
+        LEFT JOIN zjut_equipment
+        ON zjut_lab.lab_id = zjut_equipment.lab_id
+        WHERE lab_type = 1
+        ORDER BY zjut_lab.lab_id
+    </sql>
+
+    <sql id="selectZjutLabVo">
+        SELECT zjut_lab.lab_id, lab_num, lab_ad, admin_id, equipment_num, lab_type
+        FROM zjut_lab
+    </sql>
+    <select id="selectAmountOfRoomByRoomType" resultType="_int">
+        select count(*)
+        from zjut_lab
+        where lab_type=#{roomType}
+    </select>
+
+    <sql id="selectZjutLabSubscribeVo">
+        SELECT a.lab_id, a.lab_num, a.lab_ad, a.admin_id, a.lab_type,
+               b.lab_subscribe_start_time, b.lab_subscribe_end_time,b.lab_subscribe_person,b.lab_subscribe_date
+        from zjut_lab a
+                 join lab_subscribe b
+                      on b.lab_id = a.lab_id
+    </sql>
+
+
+    <select id="selectZjutLabList" parameterType="ZjutLab" resultMap="ZjutLabResult" >
+        <include refid="selectZjutLabVo"/>
+    </select>
+
+    <select id="selectZjutLabEquipmentList" parameterType="ZjutLab" resultMap="ZjutLabResult" >
+        <include refid="selectZjutLabEquipmentVo"/>
+    </select>
+
+    <select id="selectZjutLabSubscribeList" parameterType="ZjutLab" resultMap="ZjutLabResult" >
+        <include refid="selectZjutLabSubscribeVo"/>
+    </select>
+
+    <select id="selectZjutLabById" parameterType="Long" resultMap="ZjutLabResult">
+        select a.lab_id, a.lab_num, a.lab_ad, a.admin_id, a.lab_type,
+               b.equipment_name, b.admin_id, b.equipment_model,b.equipment_sn_number,
+               c.lab_subscribe_id,c.lab_subscribe_start_time,c.lab_subscribe_end_time,c.lab_subscribe_person,c.lab_subscribe_date, c.lab_subscribe_phone
+        from zjut_lab a
+                 left join zjut_equipment b on b.lab_id = a.lab_id
+                 left join lab_subscribe c on c.lab_id = a.lab_id
+        where a.lab_id = #{labId}
+    </select>
+
+    <insert id="insertZjutLab" parameterType="ZjutLab">
+        insert into zjut_lab
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="labId != null">lab_id,</if>
+            <if test="labNum != null">lab_num,</if>
+            <if test="labAd != null">lab_ad,</if>
+            <if test="adminId != null">admin_id,</if>
+            <if test="labType != null">lab_type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="labId != null">#{labId},</if>
+            <if test="labNum != null">#{labNum},</if>
+            <if test="labAd != null">#{labAd},</if>
+            <if test="adminId != null">#{adminId},</if>
+            <if test="labType != null">#{labType},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZjutLab" parameterType="ZjutLab">
+        update zjut_lab
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="labNum != null">lab_num = #{labNum},</if>
+            <if test="labAd != null">lab_ad = #{labAd},</if>
+            <if test="adminId != null">admin_id = #{adminId},</if>
+            <if test="labType != null">lab_type = #{labType},</if>
+        </trim>
+        where lab_id = #{labId}
+    </update>
+
+    <delete id="deleteZjutLabById" parameterType="Long">
+        delete from zjut_lab where lab_id = #{labId}
+    </delete>
+
+    <delete id="deleteZjutLabByIds" parameterType="String">
+        delete from zjut_lab where lab_id in
+        <foreach item="labId" collection="array" open="(" separator="," close=")">
+            #{labId}
+        </foreach>
+    </delete>
+</mapper>

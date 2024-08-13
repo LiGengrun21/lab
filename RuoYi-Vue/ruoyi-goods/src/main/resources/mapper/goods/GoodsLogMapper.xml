@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.goods.mapper.GoodsLogMapper">
+
+    <resultMap type="GoodsLog" id="GoodsLogResult">
+        <result property="goodsLogId"    column="goods_log_id"    />
+        <result property="goodsNum"    column="goods_num"    />
+        <result property="goodsName"    column="goods_name"    />
+        <result property="goodsPerson"    column="goods_person"    />
+        <result property="goodsAd"    column="goods_ad"    />
+        <result property="actionType"    column="action_type"    />
+        <result property="actionNum"    column="action_num"    />
+        <result property="actionDate"    column="action_date"    />
+        <result property="goodsLogMassage"    column="goods_log_massage"    />
+    </resultMap>
+
+    <sql id="selectGoodsLogVo">
+        select goods_log_id, goods_num, goods_name, goods_ad, action_type, action_num, goods_log_massage, goods_person, action_date from goods_log
+        order by goods_log_id desc
+    </sql>
+
+    <select id="selectGoodsLogList" parameterType="GoodsLog" resultMap="GoodsLogResult">
+        <include refid="selectGoodsLogVo"/>
+        <where>
+            <if test="goodsNum != null "> and goods_num = #{goodsNum}</if>
+            <if test="goodsName != null  and goodsName != ''"> and goods_name like concat('%', #{goodsName}, '%')</if>
+            <if test="goodsAd != null  and goodsAd != ''"> and goods_ad = #{goodsAd}</if>
+            <if test="actionType != null  and actionType != ''"> and action_type = #{actionType}</if>
+            <if test="actionNum != null "> and action_num = #{actionNum}</if>
+            <if test="goodsLogMassage != null  and goodsLogMassage != ''"> and goods_log_massage = #{goodsLogMassage}</if>
+        </where>
+    </select>
+
+    <select id="selectGoodsLogById" parameterType="Long" resultMap="GoodsLogResult">
+        <include refid="selectGoodsLogVo"/>
+        where goods_log_id = #{goodsLogId}
+    </select>
+
+    <insert id="insertGoodsLog" parameterType="GoodsLog" useGeneratedKeys="true" keyProperty="goodsLogId">
+        insert into goods_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="goodsNum != null">goods_num,</if>
+            <if test="goodsName != null">goods_name,</if>
+            <if test="goodsAd != null">goods_ad,</if>
+            <if test="goodsPerson != null">goods_person,</if>
+            <if test="actionType != null">action_type,</if>
+            <if test="actionDate != null">action_date,</if>
+            <if test="actionNum != null">action_num,</if>
+            <if test="goodsLogMassage != null">goods_log_massage,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="goodsNum != null">#{goodsNum},</if>
+            <if test="goodsName != null">#{goodsName},</if>
+            <if test="goodsAd != null">#{goodsAd},</if>
+            <if test="goodsPerson != null">#{goodsPerson},</if>
+            <if test="actionType != null">#{actionType},</if>
+            <if test="actionDate != null">#{actionDate},</if>
+            <if test="actionNum != null">#{actionNum},</if>
+            <if test="goodsLogMassage != null">#{goodsLogMassage},</if>
+         </trim>
+    </insert>
+
+    <update id="updateGoodsLog" parameterType="GoodsLog">
+        update goods_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="goodsNum != null">goods_num = #{goodsNum},</if>
+            <if test="goodsName != null">goods_name = #{goodsName},</if>
+            <if test="goodsAd != null">goods_ad = #{goodsAd},</if>
+            <if test="goodsPerson != null">goods_person = #{goodsPerson},</if>
+            <if test="actionType != null">action_type = #{actionType},</if>
+            <if test="actionDate != null">action_date = #{actionDate},</if>
+            <if test="actionNum != null">action_num = #{actionNum},</if>
+            <if test="goodsLogMassage != null">goods_log_massage = #{goodsLogMassage},</if>
+        </trim>
+        where goods_log_id = #{goodsLogId}
+    </update>
+
+    <delete id="deleteGoodsLogById" parameterType="Long">
+        delete from goods_log where goods_log_id = #{goodsLogId}
+    </delete>
+
+    <delete id="deleteGoodsLogByIds" parameterType="String">
+        delete from goods_log where goods_log_id in
+        <foreach item="goodsLogId" collection="array" open="(" separator="," close=")">
+            #{goodsLogId}
+        </foreach>
+    </delete>
+</mapper>

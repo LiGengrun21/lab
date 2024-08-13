@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.equipment.mapper.EquipmentUseMapper">
+
+    <resultMap type="EquipmentUse" id="EquipmentUseResult">
+        <result property="equipmentUseId"    column="equipment_use_id"    />
+        <result property="equipmentSubscribeId"    column="equipment_subscribe_id"    />
+        <result property="equipmentId"    column="equipment_id"    />
+        <result property="useDate"    column="use_date"    />
+        <result property="useStartTime"    column="use_start_time"    />
+        <result property="useEndTime"    column="use_end_time"    />
+        <result property="useName"    column="use_name"    />
+        <result property="useCost"    column="use_cost"    />
+    </resultMap>
+
+    <sql id="selectEquipmentUseVo">
+        select equipment_use_id, equipment_id, use_date, use_start_time, use_end_time, use_name, use_cost, equipment_subscribe_id from equipment_use
+    </sql>
+
+    <select id="selectEquipmentUseList" parameterType="EquipmentUse" resultMap="EquipmentUseResult">
+        <include refid="selectEquipmentUseVo"/>
+        <where>
+            <if test="equipmentId != null "> and equipment_id = #{equipmentId}</if>
+            <if test="equipmentSubscribeId != null "> and equipment_subscribe_id = #{equipmentSubscribeId}</if>
+            <if test="useDate != null "> and use_date = #{useDate}</if>
+            <if test="useStartTime != null "> and use_start_time = #{useStartTime}</if>
+            <if test="useEndTime != null "> and use_end_time = #{useEndTime}</if>
+            <if test="useName != null  and useName != ''"> and use_name like concat('%', #{useName}, '%')</if>
+            <if test="useCost != null "> and use_cost = #{useCost}</if>
+        </where>
+    </select>
+
+    <select id="selectEquipmentUseListBySubscribeId" parameterType="Long" resultMap="EquipmentUseResult">
+        <include refid="selectEquipmentUseVo"/>
+        where equipment_subscribe_id = #{equipmentSubscribeId}
+    </select>
+
+    <select id="selectEquipmentUseById" parameterType="Long" resultMap="EquipmentUseResult">
+        <include refid="selectEquipmentUseVo"/>
+        where equipment_use_id = #{equipmentUseId}
+    </select>
+
+    <insert id="insertEquipmentUse" parameterType="EquipmentUse" useGeneratedKeys="true" keyProperty="equipmentUseId">
+        insert into equipment_use
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id,</if>
+            <if test="equipmentSubscribeId != null">equipment_subscribe_id,</if>
+            <if test="useDate != null">use_date,</if>
+            <if test="useStartTime != null">use_start_time,</if>
+            <if test="useEndTime != null">use_end_time,</if>
+            <if test="useName != null">use_name,</if>
+            <if test="useCost != null">use_cost,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="equipmentId != null">#{equipmentId},</if>
+            <if test="equipmentSubscribeId != null">#{equipmentSubscribeId},</if>
+            <if test="useDate != null">#{useDate},</if>
+            <if test="useStartTime != null">#{useStartTime},</if>
+            <if test="useEndTime != null">#{useEndTime},</if>
+            <if test="useName != null">#{useName},</if>
+            <if test="useCost != null">#{useCost},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEquipmentUse" parameterType="EquipmentUse">
+        update equipment_use
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id = #{equipmentId},</if>
+            <if test="equipmentSubscribeId != null">equipment_subscribe_id = #{equipmentSubscribeId},</if>
+            <if test="useDate != null">use_date = #{useDate},</if>
+            <if test="useStartTime != null">use_start_time = #{useStartTime},</if>
+            <if test="useEndTime != null">use_end_time = #{useEndTime},</if>
+            <if test="useName != null">use_name = #{useName},</if>
+            <if test="useCost != null">use_cost = #{useCost},</if>
+        </trim>
+        where equipment_use_id = #{equipmentUseId}
+    </update>
+
+    <delete id="deleteEquipmentUseById" parameterType="Long">
+        delete from equipment_use where equipment_use_id = #{equipmentUseId}
+    </delete>
+
+    <delete id="deleteEquipmentUseByIds" parameterType="String">
+        delete from equipment_use where equipment_use_id in
+        <foreach item="equipmentUseId" collection="array" open="(" separator="," close=")">
+            #{equipmentUseId}
+        </foreach>
+    </delete>
+</mapper>

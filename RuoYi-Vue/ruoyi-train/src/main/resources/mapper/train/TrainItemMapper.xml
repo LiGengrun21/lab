@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.train.mapper.TrainItemMapper">
+
+    <resultMap type="TrainItem" id="TrainItemResult">
+        <result property="trainId"    column="train_id"    />
+        <result property="classId"    column="class_id"    />
+        <result property="trainAdder"    column="train_adder"    />
+        <result property="trainTime"    column="train_time"    />
+        <result property="trainAd"    column="train_ad"    />
+        <result property="trainTip"    column="train_tip"    />
+        <result property="trainMaxPerson"    column="train_max_person"    />
+        <collection property="sysUser" javaType="java.util.List" resultMap="UserResult"/>
+        <collection property="trainUser" javaType="java.util.List" resultMap="TrainUserResult"/>
+    </resultMap>
+
+    <resultMap id="UserResult" type="SysUser">
+        <id property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="email" column="email"/>
+        <result property="phonenumber" column="phonenumber"/>
+    </resultMap>
+
+    <resultMap id="TrainUserResult" type="TrainUser">
+        <id property="userId" column="user_id"/>
+        <id property="trainId" column="train_id"/>
+        <result property="userScore" column="user_score"/>
+    </resultMap>
+
+    <sql id="selectTrainItemVo">
+        select train_id, class_id ,train_adder, train_time, train_ad, train_tip, train_max_person from train_item
+    </sql>
+
+    <select id="selectTrainItemList" parameterType="TrainItem" resultMap="TrainItemResult">
+        <include refid="selectTrainItemVo"/>
+        <where>
+            <if test="trainAdder != null  and trainAdder != ''"> and train_adder = #{trainAdder}</if>
+            <if test="classId != null  and classId != ''"> and class_id = #{classId}</if>
+            <if test="trainTime != null "> and train_time = #{trainTime}</if>
+            <if test="trainAd != null  and trainAd != ''"> and train_ad = #{trainAd}</if>
+            <if test="trainTip != null  and trainTip != ''"> and train_tip = #{trainTip}</if>
+            <if test="trainMaxPerson != null "> and train_max_person = #{trainMaxPerson}</if>
+        </where>
+    </select>
+
+    <select id="selectTrainAndUserListById" parameterType="Long" resultMap="TrainItemResult">
+        select train_item.train_id, class_id, train_tip,
+               sys_user.user_id, nick_name, email, phonenumber,
+               user_score
+        from train_item
+        join train_user on train_item.train_id = train_user.train_id
+        join sys_user on train_user.user_id = sys_user.user_id
+        where train_item.train_id = #{trainId}
+    </select>
+
+    <select id="selectTrainItemById" parameterType="Long" resultMap="TrainItemResult">
+        <include refid="selectTrainItemVo"/>
+        where train_id = #{trainId}
+    </select>
+
+    <insert id="insertTrainItem" parameterType="TrainItem">
+        insert into train_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="trainId != null">train_id,</if>
+            <if test="classId != null">class_id,</if>
+            <if test="trainAdder != null">train_adder,</if>
+            <if test="trainTime != null">train_time,</if>
+            <if test="trainAd != null">train_ad,</if>
+            <if test="trainTip != null">train_tip,</if>
+            <if test="trainMaxPerson != null">train_max_person,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="trainId != null">#{trainId},</if>
+            <if test="classId != null">#{classId},</if>
+            <if test="trainAdder != null">#{trainAdder},</if>
+            <if test="trainTime != null">#{trainTime},</if>
+            <if test="trainAd != null">#{trainAd},</if>
+            <if test="trainTip != null">#{trainTip},</if>
+            <if test="trainMaxPerson != null">#{trainMaxPerson},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTrainItem" parameterType="TrainItem">
+        update train_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="trainAdder != null">train_adder = #{trainAdder},</if>
+            <if test="trainAdder != null">class_id = #{classId},</if>
+            <if test="trainTime != null">train_time = #{trainTime},</if>
+            <if test="trainAd != null">train_ad = #{trainAd},</if>
+            <if test="trainTip != null">train_tip = #{trainTip},</if>
+            <if test="trainMaxPerson != null">train_max_person = #{trainMaxPerson},</if>
+        </trim>
+        where train_id = #{trainId}
+    </update>
+
+    <delete id="deleteTrainItemById" parameterType="Long">
+        delete from train_item where train_id = #{trainId}
+    </delete>
+
+    <delete id="deleteTrainItemByIds" parameterType="String">
+        delete from train_item where train_id in
+        <foreach item="trainId" collection="array" open="(" separator="," close=")">
+            #{trainId}
+        </foreach>
+    </delete>
+</mapper>

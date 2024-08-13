@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.lab.mapper.LabSubscribeMapper">
+    <resultMap type="LabSubscribe" id="LabSubscribeResult">
+        <result property="labSubscribeId" column="lab_subscribe_id"/>
+        <result property="labId" column="lab_id"/>
+        <result property="labSubscribeDate" column="lab_subscribe_date"/>
+        <result property="labSubscribeStartTime" column="lab_subscribe_start_time"/>
+        <result property="labSubscribeEndTime" column="lab_subscribe_end_time"/>
+        <result property="labSubscribeStatus" column="lab_subscribe_status"/>
+        <result property="labSubscribePhone" column="lab_subscribe_phone"/>
+        <result property="labSubscribePerson" column="lab_subscribe_person"/>
+        <association property="zjutLab" javaType="ZjutLab">
+            <id property="labId" column="lab_id"/>
+            <result property="labNum" column="lab_num"/>
+        </association>
+    </resultMap>
+    <sql id="selectLabSubscribeVo">
+        select lab_subscribe_id,
+            zjut_lab.lab_id,
+            lab_subscribe_date,
+            lab_subscribe_start_time,
+            lab_subscribe_end_time,
+            lab_subscribe_person,
+            lab_subscribe_phone,
+            lab_subscribe_status,
+            zjut_lab.lab_num
+        from lab_subscribe
+                 join zjut_lab on lab_subscribe.lab_id=zjut_lab.lab_id
+    </sql>
+    <select id="selectLabSubscribeList" parameterType="LabSubscribe" resultMap="LabSubscribeResult">
+        <include refid="selectLabSubscribeVo"/>
+        <where>
+            <if test="labSubscribeId != null">and lab_subscribe_id = #{labSubscribeId}</if>
+            <if test="labId != null ">and lab_subscribe.lab_id = #{labId}</if>
+            <if test="labSubscribeDate != null">and lab_subscribe_date = #{labSubscribeDate}</if>
+            <if test="labSubscribeStartTime != null ">and lab_subscribe_start_time = #{labSubscribeStartTime}</if>
+            <if test="labSubscribeEndTime != null ">and lab_subscribe_end_time = #{labSubscribeEndTime}</if>
+            <if test="labSubscribePerson != null  and labSubscribePerson != ''">and lab_subscribe_person = #{labSubscribePerson}</if>
+            <if test="labSubscribePhone != null  and labSubscribePhone != ''">and lab_subscribe_phone = #{labSubscribePhone}</if>
+            <if test="labSubscribeStatus != null  and labSubscribeStatus != ''">and lab_subscribe_status = #{labSubscribeStatus}</if>
+        </where>
+    </select>
+    <select id="selectAuditLabSubscribeList" parameterType="LabSubscribe" resultMap="LabSubscribeResult">
+        select zjut_lab.lab_num,
+            lab_subscribe_id,
+            lab_subscribe.lab_id,
+            lab_subscribe_date,
+            lab_subscribe_start_time,
+            lab_subscribe_end_time,
+            lab_subscribe_person,
+            lab_subscribe_phone,
+            lab_subscribe_status
+        from lab_subscribe
+                 join zjut_lab
+        where lab_subscribe_status=2
+        order by lab_subscribe_id desc
+    </select>
+    <select id="selectLabSubscribeById" parameterType="Long" resultMap="LabSubscribeResult">
+        select lab_subscribe_id,
+            lab_id,
+            lab_subscribe_date,
+            lab_subscribe_start_time,
+            lab_subscribe_end_time,
+            lab_subscribe_person,
+            lab_subscribe_phone,
+            lab_subscribe_status
+        from lab_subscribe
+        where lab_subscribe_id=#{labSubscribeId}
+    </select>
+    <select id="selectAmountOfSubscribedRoomByDefiniteTimeAndRoomType" resultType="_int">
+        select count(*)
+        from lab_subscribe
+            where lab_subscribe_date=#{date} and #{time} between lab_subscribe_start_time and lab_subscribe_end_time and
+                lab_id in (
+                    select lab_id
+                    from zjut_lab
+                    where lab_type=#{roomType})
+    </select>
+    <insert id="insertLabSubscribe" parameterType="LabSubscribe">
+        insert into lab_subscribe
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="labSubscribeId != null">lab_subscribe_id,</if>
+            <if test="labId != null">lab_id,</if>
+            <if test="labSubscribeDate != null">lab_subscribe_date,</if>
+            <if test="labSubscribeStatus != null">lab_subscribe_status,</if>
+            <if test="labSubscribeStartTime != null">lab_subscribe_start_time,</if>
+            <if test="labSubscribeEndTime != null">lab_subscribe_end_time,</if>
+            <if test="labSubscribePerson != null">lab_subscribe_person,</if>
+            <if test="labSubscribePhone != null">lab_subscribe_phone,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="labSubscribeId != null">#{labSubscribeId},</if>
+            <if test="labId != null">#{labId},</if>
+            <if test="labSubscribeDate != null">#{labSubscribeDate},</if>
+            <if test="labSubscribeStatus != null">#{labSubscribeStatus},</if>
+            <if test="labSubscribeStartTime != null">#{labSubscribeStartTime},</if>
+            <if test="labSubscribeEndTime != null">#{labSubscribeEndTime},</if>
+            <if test="labSubscribePerson != null">#{labSubscribePerson},</if>
+            <if test="labSubscribePhone != null">#{labSubscribePhone},</if>
+        </trim>
+    </insert>
+    <update id="updateLabSubscribe" parameterType="LabSubscribe">
+        update lab_subscribe
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="labId != null">lab_id = #{labId},</if>
+            <if test="labSubscribeStartTime != null">lab_subscribe_start_time = #{labSubscribeStartTime},</if>
+            <if test="labSubscribeStatus != null">lab_subscribe_status = #{labSubscribeStatus},</if>
+            <if test="labSubscribeEndTime != null">lab_subscribe_end_time = #{labSubscribeEndTime},</if>
+            <if test="labSubscribePerson != null">lab_subscribe_person = #{labSubscribePerson},</if>
+            <if test="labSubscribePhone!= null">lab_subscribe_phone = #{labSubscribePhone},</if>
+        </trim>
+        where lab_subscribe_id = #{labSubscribeId}
+    </update>
+    <delete id="deleteLabSubscribeById" parameterType="Long">
+        delete
+        from lab_subscribe
+        where lab_subscribe_id=#{labSubscribeId}
+    </delete>
+    <delete id="deleteLabSubscribeByIds" parameterType="String">
+        delete from lab_subscribe where lab_subscribe_id in
+        <foreach item="labSubscribeId" collection="array" open="(" separator="," close=")">
+            #{labSubscribeId}
+        </foreach>
+    </delete>
+</mapper>

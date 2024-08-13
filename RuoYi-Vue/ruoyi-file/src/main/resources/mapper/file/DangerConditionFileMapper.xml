@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.file.mapper.DangerConditionFileMapper">
+    
+    <resultMap type="DangerConditionFile" id="DangerConditionFileResult">
+        <result property="dangerConditionFileId"    column="danger_condition_file_id"    />
+        <result property="dangerConditionId"    column="danger_condition_id"    />
+        <result property="dangerConditionFileName"    column="danger_condition_file_name"    />
+        <result property="dangerConditionFilePath"    column="danger_condition_file_path"    />
+    </resultMap>
+
+    <sql id="selectDangerConditionFileVo">
+        select danger_condition_file_id, danger_condition_id, danger_condition_file_name, danger_condition_file_path from danger_condition_file
+    </sql>
+
+    <select id="selectDangerConditionFileList" parameterType="DangerConditionFile" resultMap="DangerConditionFileResult">
+        <include refid="selectDangerConditionFileVo"/>
+        <where>  
+            <if test="dangerConditionId != null "> and danger_condition_id = #{dangerConditionId}</if>
+            <if test="dangerConditionFileName != null  and dangerConditionFileName != ''"> and danger_condition_file_name like concat('%', #{dangerConditionFileName}, '%')</if>
+            <if test="dangerConditionFilePath != null  and dangerConditionFilePath != ''"> and danger_condition_file_path = #{dangerConditionFilePath}</if>
+        </where>
+    </select>
+    
+    <select id="selectDangerConditionFileById" parameterType="Long" resultMap="DangerConditionFileResult">
+        <include refid="selectDangerConditionFileVo"/>
+        where danger_condition_file_id = #{dangerConditionFileId}
+    </select>
+        
+    <insert id="insertDangerConditionFile" parameterType="DangerConditionFile" useGeneratedKeys="true" keyProperty="dangerConditionFileId">
+        insert into danger_condition_file
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="dangerConditionId != null">danger_condition_id,</if>
+            <if test="dangerConditionFileName != null">danger_condition_file_name,</if>
+            <if test="dangerConditionFilePath != null">danger_condition_file_path,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="dangerConditionId != null">#{dangerConditionId},</if>
+            <if test="dangerConditionFileName != null">#{dangerConditionFileName},</if>
+            <if test="dangerConditionFilePath != null">#{dangerConditionFilePath},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDangerConditionFile" parameterType="DangerConditionFile">
+        update danger_condition_file
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="dangerConditionId != null">danger_condition_id = #{dangerConditionId},</if>
+            <if test="dangerConditionFileName != null">danger_condition_file_name = #{dangerConditionFileName},</if>
+            <if test="dangerConditionFilePath != null">danger_condition_file_path = #{dangerConditionFilePath},</if>
+        </trim>
+        where danger_condition_file_id = #{dangerConditionFileId}
+    </update>
+
+    <delete id="deleteDangerConditionFileById" parameterType="Long">
+        delete from danger_condition_file where danger_condition_file_id = #{dangerConditionFileId}
+    </delete>
+
+    <delete id="deleteDangerConditionFileByIds" parameterType="String">
+        delete from danger_condition_file where danger_condition_file_id in 
+        <foreach item="dangerConditionFileId" collection="array" open="(" separator="," close=")">
+            #{dangerConditionFileId}
+        </foreach>
+    </delete>
+</mapper>

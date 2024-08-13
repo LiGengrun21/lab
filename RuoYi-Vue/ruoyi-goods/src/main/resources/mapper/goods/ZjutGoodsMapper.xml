@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.goods.mapper.ZjutGoodsMapper">
+
+    <resultMap type="ZjutGoods" id="ZjutGoodsResult">
+        <result property="goodsId"    column="goods_id"    />
+        <result property="goodsNum"    column="goods_num"    />
+        <result property="goodsName"    column="goods_name"    />
+        <result property="goodsQuantity"    column="goods_quantity"    />
+        <result property="goodsWarning"    column="goods_warning"    />
+        <result property="goodsUnit"    column="goods_unit"    />
+        <result property="goodsAd"    column="goods_ad"    />
+        <result property="goodsType"    column="goods_type"    />
+    </resultMap>
+
+    <sql id="selectZjutGoodsVo">
+        select goods_id, goods_num, goods_quantity, goods_warning, goods_unit, goods_ad, goods_type, goods_name from zjut_goods
+    </sql>
+
+    <select id="selectZjutGoodsList" parameterType="ZjutGoods" resultMap="ZjutGoodsResult">
+        <include refid="selectZjutGoodsVo"/>
+        where goods_type = 1
+    </select>
+
+    <select id="selectEquipmentGoodsList" parameterType="ZjutGoods" resultMap="ZjutGoodsResult">
+        <include refid="selectZjutGoodsVo"/>
+        where goods_type = 2
+    </select>
+
+    <select id="selectValuableGoodsList" parameterType="ZjutGoods" resultMap="ZjutGoodsResult">
+        <include refid="selectZjutGoodsVo"/>
+        where goods_type = 3
+    </select>
+
+    <select id="selectZjutGoodsById" parameterType="Long" resultMap="ZjutGoodsResult">
+        <include refid="selectZjutGoodsVo"/>
+        where goods_id = #{goodsId}
+    </select>
+
+    <insert id="insertZjutGoods" parameterType="ZjutGoods">
+        insert into zjut_goods
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="goodsId != null">goods_id,</if>
+            <if test="goodsNum != null">goods_num,</if>
+            <if test="goodsName != null">goods_name,</if>
+            <if test="goodsQuantity != null">goods_quantity,</if>
+            <if test="goodsWarning != null">goods_warning,</if>
+            <if test="goodsUnit != null">goods_unit,</if>
+            <if test="goodsAd != null">goods_ad,</if>
+            <if test="goodsType != null">goods_type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="goodsId != null">#{goodsId},</if>
+            <if test="goodsNum != null">#{goodsNum},</if>
+            <if test="goodsName != null">#{goodsName},</if>
+            <if test="goodsQuantity != null">#{goodsQuantity},</if>
+            <if test="goodsWarning != null">#{goodsWarning},</if>
+            <if test="goodsUnit != null">#{goodsUnit},</if>
+            <if test="goodsAd != null">#{goodsAd},</if>
+            <if test="goodsType != null">#{goodsType},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZjutGoods" parameterType="ZjutGoods">
+        update zjut_goods
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="goodsNum != null">goods_num = #{goodsNum},</if>
+            <if test="goodsName != null">goods_name = #{goodsName},</if>
+            <if test="goodsQuantity != null">goods_quantity = #{goodsQuantity},</if>
+            <if test="goodsWarning != null">goods_warning = #{goodsWarning},</if>
+            <if test="goodsUnit != null">goods_unit = #{goodsUnit},</if>
+            <if test="goodsAd != null">goods_ad = #{goodsAd},</if>
+            <if test="goodsType != null">goods_type = #{goodsType},</if>
+        </trim>
+        where goods_id = #{goodsId}
+    </update>
+
+    <delete id="deleteZjutGoodsById" parameterType="Long">
+        delete from zjut_goods where goods_id = #{goodsId}
+    </delete>
+
+    <delete id="deleteZjutGoodsByIds" parameterType="String">
+        delete from zjut_goods where goods_id in
+        <foreach item="goodsId" collection="array" open="(" separator="," close=")">
+            #{goodsId}
+        </foreach>
+    </delete>
+</mapper>

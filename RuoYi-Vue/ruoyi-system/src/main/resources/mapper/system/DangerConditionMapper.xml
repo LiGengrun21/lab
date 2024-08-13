@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.DangerConditionMapper">
+    
+    <resultMap type="DangerCondition" id="DangerConditionResult">
+        <result property="id"    column="id"    />
+        <result property="happenTime"    column="happen_time"    />
+        <result property="happenAddress"    column="happen_address"    />
+        <result property="detail"    column="detail"    />
+        <result property="submitTime"    column="submit_time"    />
+    </resultMap>
+
+    <sql id="selectDangerConditionVo">
+        select id, happen_time, happen_address, detail, submit_time from danger_condition
+    </sql>
+
+    <select id="selectDangerConditionList" parameterType="DangerCondition" resultMap="DangerConditionResult">
+        <include refid="selectDangerConditionVo"/>
+        <where>  
+            <if test="happenTime != null "> and happen_time = #{happenTime}</if>
+            <if test="happenAddress != null  and happenAddress != ''"> and happen_address = #{happenAddress}</if>
+            <if test="detail != null  and detail != ''"> and detail = #{detail}</if>
+            <if test="submitTime != null "> and submit_time = #{submitTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectDangerConditionById" parameterType="Long" resultMap="DangerConditionResult">
+        <include refid="selectDangerConditionVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertDangerCondition" parameterType="DangerCondition" useGeneratedKeys="true" keyProperty="id">
+        insert into danger_condition
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="happenTime != null">happen_time,</if>
+            <if test="happenAddress != null">happen_address,</if>
+            <if test="detail != null">detail,</if>
+            <if test="submitTime != null">submit_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="happenTime != null">#{happenTime},</if>
+            <if test="happenAddress != null">#{happenAddress},</if>
+            <if test="detail != null">#{detail},</if>
+            <if test="submitTime != null">#{submitTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDangerCondition" parameterType="DangerCondition">
+        update danger_condition
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="happenTime != null">happen_time = #{happenTime},</if>
+            <if test="happenAddress != null">happen_address = #{happenAddress},</if>
+            <if test="detail != null">detail = #{detail},</if>
+            <if test="submitTime != null">submit_time = #{submitTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDangerConditionById" parameterType="Long">
+        delete from danger_condition where id = #{id}
+    </delete>
+
+    <delete id="deleteDangerConditionByIds" parameterType="String">
+        delete from danger_condition where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.equipment.mapper.EquipmentSubscribeMapper">
+
+    <resultMap type="EquipmentSubscribe" id="EquipmentSubscribeResult">
+        <result property="equipmentSubscribeId"    column="equipment_subscribe_id"    />
+        <result property="equipmentId"    column="equipment_id"    />
+        <result property="equipmentName"    column="equipment_name"    />
+        <result property="subscribeDate"    column="subscribe_date"    />
+        <result property="subscribeStartTime"    column="subscribe_start_time"    />
+        <result property="subscribeEndTime"    column="subscribe_end_time"    />
+        <result property="userId" column="user_id"   />
+        <result property="subscribeName"    column="subscribe_name"    />
+        <result property="piId" column="pi_id"/>
+        <result property="subscribeStatus"    column="subscribe_status"    />
+        <result property="subscribePhone"    column="subscribe_phone"    />
+        <result property="totalCost" column="total_cost"/>
+        <result property="actualTotalCost" column="actual_total_cost"/>
+        <result property="equipmentCost" column="equipment_cost"/>
+        <result property="artificialCost" column="artificial_cost"/>
+        <result property="materialCost" column="material_cost"/>
+    </resultMap>
+
+    <sql id="selectEquipmentSubscribeVo">
+        select equipment_subscribe_id, equipment_id, equipment_name, subscribe_start_time, subscribe_end_time, user_id,subscribe_name,pi_id, subscribe_status, subscribe_date, subscribe_phone
+        from equipment_subscribe
+    </sql>
+
+    <select id="selectTodaySubscribe" parameterType="String" resultMap="EquipmentSubscribeResult">
+        select equipment_subscribe_id, equipment_id, equipment_name, subscribe_start_time, subscribe_end_time, subscribe_name, pi_id,subscribe_status, subscribe_date, subscribe_phone, total_cost
+        from equipment_subscribe
+        where subscribe_date = #{subecribeDate}
+    </select>
+
+    <select id="selectEquipmentSubscribeList" parameterType="EquipmentSubscribe" resultMap="EquipmentSubscribeResult">
+        <include refid="selectEquipmentSubscribeVo"/>
+        <where>
+            <if test="equipmentId != null "> and equipment_id = #{equipmentId}</if>
+            <if test="equipmentName != null  and equipmentName != ''"> and equipment_name like concat('%', #{equipmentName}, '%')</if>
+            <if test="subscribeDate != null "> and subscribe_date = #{subscribeDate}</if>
+            <if test="subscribeStartTime != null "> and subscribe_start_time &lt;= #{subscribeStartTime}</if>
+            <if test="subscribeEndTime != null "> and subscribe_end_time >= #{subscribeEndTime}</if>
+            <if test="userId != null">and user_id = #{userId}</if>
+            <if test="subscribeName != null  and subscribeName != ''"> and subscribe_name like concat('%', #{subscribeName}, '%')</if>
+            <if test="piId != null ">and pi_id=#{piId}</if>
+            <if test="
+            subscribeStatus != null  and subscribeStatus != ''"> and subscribe_status = #{subscribeStatus}</if>
+        </where>
+        order by subscribe_date desc
+    </select>
+
+    <select id="selectAuditSubscribeList" parameterType="EquipmentSubscribe" resultMap="EquipmentSubscribeResult">
+        <!--select equipment_subscribe_id, equipment_id, equipment_name, subscribe_start_time, subscribe_end_time, user_id,subscribe_name, pi_id,subscribe_status, subscribe_date, subscribe_phone
+        -->
+        select *
+        from equipment_subscribe
+        where subscribe_status = 2
+        order by equipment_subscribe_id desc
+    </select>
+
+    <select id="selectTBDSubscribeList" parameterType="EquipmentSubscribe" resultMap="EquipmentSubscribeResult">
+        select equipment_subscribe_id, equipment_id, equipment_name, subscribe_start_time, subscribe_end_time, subscribe_name,pi_id, subscribe_status, subscribe_date, subscribe_phone from equipment_subscribe
+        where subscribe_status = 0
+        order by equipment_subscribe_id desc
+    </select>
+    <select id="selectAmountOfSubscribedEquipmentByDefiniteTime" resultType="_int">
+        select count(*)
+        from equipment_subscribe
+        where subscribe_date=#{date}  and #{time} between subscribe_start_time and subscribe_end_time
+    </select>
+    <select id="selectEquipmentSubscribeById" parameterType="Long" resultMap="EquipmentSubscribeResult">
+        select equipment_subscribe_id, equipment_id, equipment_name, subscribe_start_time, subscribe_end_time, user_id,subscribe_name,pi_id, subscribe_status, subscribe_date, subscribe_phone, total_cost from equipment_subscribe
+        where equipment_subscribe_id = #{equipmentSubscribeId}
+    </select>
+    <select id="selectSubscribesStatisticOfPiAndMembers" resultType="com.ruoyi.equipment.domain.AggregateResult">
+        select subscribe_name   name,
+            count(0)            count,
+            sum(equipment_cost) equipmentMoney,
+            sum(artificial_cost) artificialMoney,
+            sum(material_cost) materialMoney,
+            sum(actual_total_cost)     totalMoney
+        from equipment_subscribe
+        where (pi_id=#{piId} or user_id=#{piId}) and subscribe_date between #{beginDate} and #{endDate} and subscribe_status=1
+        group by user_id, subscribe_name
+    </select>
+    <select id="selectSubscribesStatisticByPiUnit" resultType="com.ruoyi.equipment.domain.AggregateResult">
+        select count(0)            count,
+            sum(equipment_cost)    equipmentMoney,
+            sum(artificial_cost)   artificialMoney,
+            sum(material_cost)     materialMoney,
+            sum(total_cost) totalMoney,
+            sum(actual_total_cost)      actualTotalMoney
+        from equipment_subscribe
+        where (pi_id=#{piId} or user_id=#{piId}) and subscribe_date between #{beginDate} and #{endDate} and
+            subscribe_status=1
+    </select>
+    <select id="selectSubscribesByUserId" resultMap="EquipmentSubscribeResult">
+        select *
+        from equipment_subscribe
+        where user_id=#{userId} and subscribe_date between #{beginDate} and #{endDate} and subscribe_status=1
+        <if test="equipmentName != null and equipmentName !=''">and equipment_name=#{equipmentName}</if>
+    </select>
+    <select id="selectSubscribesStatisticByUserId" resultType="_double">
+        select if(sum(actual_total_cost) is null,0,sum(actual_total_cost))
+        from equipment_subscribe
+        where user_id=#{userId} and subscribe_date between #{beginDate} and #{endDate} and subscribe_status=1
+    </select>
+    <select id="selectSubscribesCostOfPiAndMembersByEquipmentUnit" resultType="com.ruoyi.equipment.domain.AggregateResult">
+        select equipment_name name, sum(equipment_cost) equipmentMoney
+        from equipment_subscribe
+        where (pi_id=#{piId} or user_id=#{piId}) and subscribe_date between #{beginDate} and #{endDate} and
+            subscribe_status=1
+        group by equipment_id, equipment_name
+    </select>
+    <select id="selectInfoThatEndTimeAfterIndicatedDateTime" resultMap="EquipmentSubscribeResult">
+        select *
+        from equipment_subscribe
+        where subscribe_date>#{date} or subscribe_date=#{date} and subscribe_end_time>#{time}
+    </select>
+    <insert id="insertEquipmentSubscribe" parameterType="EquipmentSubscribe" useGeneratedKeys="true" keyProperty="equipmentSubscribeId">
+        insert into equipment_subscribe
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id,</if>
+            <if test="equipmentName != null">equipment_name,</if>
+            <if test="subscribeDate != null">subscribe_date,</if>
+            <if test="subscribeStartTime != null">subscribe_start_time,</if>
+            <if test="subscribeEndTime != null">subscribe_end_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="subscribeName != null">subscribe_name,</if>
+            <if test="piId != null">pi_id,</if>
+            <if test="subscribeStatus != null">subscribe_status,</if>
+            <if test="subscribePhone != null">subscribe_phone,</if>
+            <if test="totalCost != null">total_cost,</if>
+            <if test="actualTotalCost != null">actual_total_cost,</if>
+            <if test="equipmentCost != null">equipment_cost,</if>
+            <if test="artificialCost != null">artificial_cost,</if>
+            <if test="materialCost != null">material_cost,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="equipmentId != null">#{equipmentId},</if>
+            <if test="equipmentName != null">#{equipmentName},</if>
+            <if test="subscribeDate != null">#{subscribeDate},</if>
+            <if test="subscribeStartTime != null">#{subscribeStartTime},</if>
+            <if test="subscribeEndTime != null">#{subscribeEndTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="subscribeName != null">#{subscribeName},</if>
+            <if test="piId != null">#{piId},</if>
+            <if test="subscribeStatus != null">#{subscribeStatus},</if>
+            <if test="subscribePhone != null">#{subscribePhone},</if>
+            <if test="totalCost != null">#{totalCost},</if>
+            <if test="actualTotalCost != null">#{actualTotalCost},</if>
+            <if test="equipmentCost != null">#{equipmentCost},</if>
+            <if test="artificialCost != null">#{artificialCost},</if>
+            <if test="materialCost != null">#{materialCost},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEquipmentSubscribe" parameterType="EquipmentSubscribe">
+        update equipment_subscribe
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id = #{equipmentId},</if>
+            <if test="equipmentName != null">equipment_name = #{equipmentName},</if>
+            <if test="subscribeDate != null">subscribe_date = #{subscribeDate},</if>
+            <if test="subscribeStartTime != null">subscribe_start_time = #{subscribeStartTime},</if>
+            <if test="subscribeEndTime != null">subscribe_end_time = #{subscribeEndTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="subscribeName != null">subscribe_name = #{subscribeName},</if>
+            <if test="piId != null">pi_id=#{piId},</if>
+            <if test="subscribeStatus != null">subscribe_status = #{subscribeStatus},</if>
+            <if test="subscribePhone != null">subscribe_phone = #{subscribePhone},</if>
+            <if test="totalCost != null">total_cost = #{totalCost},</if>
+            <if test="actualTotalCost != null">actual_total_cost = #{actualTotalCost},</if>
+            <if test="equipmentCost != null">equipment_cost = #{equipmentCost},</if>
+            <if test="artificialCost != null">artificial_cost = #{artificialCost},</if>
+            <if test="materialCost != null">material_cost = #{materialCost},</if>
+        </trim>
+        where equipment_subscribe_id = #{equipmentSubscribeId}
+    </update>
+
+    <delete id="deleteEquipmentSubscribeById" parameterType="Long">
+        delete from equipment_subscribe where equipment_subscribe_id = #{equipmentSubscribeId}
+    </delete>
+
+    <delete id="deleteEquipmentSubscribeByIds" parameterType="String">
+        delete from equipment_subscribe where equipment_subscribe_id in
+        <foreach item="equipmentSubscribeId" collection="array" open="(" separator="," close=")">
+            #{equipmentSubscribeId}
+        </foreach>
+    </delete>
+    <select id="selectEveryCostAggregationByUserId" resultType="java.util.Map">
+        select sum(equipment_cost) totalEquipmentCost,
+            sum(artificial_cost)   totalArtificialCost,
+            sum(material_cost)     totalMaterialCost,
+            sum(total_cost)        totalTotalCost,
+            sum(actual_total_cost) totalActualTotalCost
+        from equipment_subscribe
+        where user_id=#{userId}
+    </select>
+
+    <select id="selectConflictSubscribe" resultType="java.lang.Integer" >
+        select count(*) from equipment_subscribe
+        <where>
+            subscribe_status != 3
+            <if test="equipmentId != null">and equipment_id = #{equipmentId}</if>
+            <if test="subscribeDate != null "> and subscribe_date = #{subscribeDate}</if>
+            <if test="subscribeStartTime != null and subscribeEndTime != null ">
+                and (
+                    #{subscribeStartTime} between subscribe_start_time and subscribe_end_time
+                    or #{subscribeEndTime} between subscribe_start_time and subscribe_end_time
+                    )
+            </if>
+        </where>
+    </select>
+</mapper>

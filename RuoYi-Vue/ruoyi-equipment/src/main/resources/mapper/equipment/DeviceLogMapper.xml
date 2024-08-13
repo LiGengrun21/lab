@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.equipment.mapper.DeviceLogMapper">
+
+    <resultMap type="DeviceLog" id="DeviceLogResult">
+        <result property="deviceLogId"    column="device_log_id"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="deviceCurrent"    column="device_current"    />
+        <result property="devicePower"    column="device_power"    />
+        <result property="deviceVoltage"    column="device_voltage"    />
+        <result property="deviceStatus"    column="device_status"    />
+        <result property="logTime"    column="log_time"    />
+    </resultMap>
+
+    <sql id="selectDeviceLogVo">
+        select device_log_id, device_id, device_current, device_power, device_voltage, device_status, log_time from device_log
+    </sql>
+
+    <select id="selectDeviceLogByName" parameterType="String">
+        select device_log_id, device_id, device_current, device_power, device_voltage, device_status, log_time from ${deviceLogName}
+    </select>
+
+    <select id="selectDeviceLogList" parameterType="DeviceLog" resultMap="DeviceLogResult">
+        <include refid="selectDeviceLogVo"/>
+        <where>
+            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
+            <if test="deviceCurrent != null  and deviceCurrent != ''"> and device_current = #{deviceCurrent}</if>
+            <if test="devicePower != null  and devicePower != ''"> and device_power = #{devicePower}</if>
+            <if test="deviceVoltage != null  and deviceVoltage != ''"> and device_voltage = #{deviceVoltage}</if>
+            <if test="deviceStatus != null  and deviceStatus != ''"> and device_status = #{deviceStatus}</if>
+            <if test="logTime != null "> and log_time = #{logTime}</if>
+        </where>
+    </select>
+
+    <select id="selectDeviceLogById" parameterType="Long" resultMap="DeviceLogResult">
+        <include refid="selectDeviceLogVo"/>
+        where device_log_id = #{deviceLogId}
+    </select>
+
+    <insert id="insertDeviceLog" parameterType="DeviceLog">
+        insert into device_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceLogId != null">device_log_id,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="deviceCurrent != null">device_current,</if>
+            <if test="devicePower != null">device_power,</if>
+            <if test="deviceVoltage != null">device_voltage,</if>
+            <if test="deviceStatus != null">device_status,</if>
+            <if test="logTime != null">log_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deviceLogId != null">#{deviceLogId},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="deviceCurrent != null">#{deviceCurrent},</if>
+            <if test="devicePower != null">#{devicePower},</if>
+            <if test="deviceVoltage != null">#{deviceVoltage},</if>
+            <if test="deviceStatus != null">#{deviceStatus},</if>
+            <if test="logTime != null">#{logTime},</if>
+         </trim>
+    </insert>
+
+    <insert id="insertOneDeviceLog">
+        insert into ${snNumber}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceLog.deviceLogId != null">device_log_id,</if>
+            <if test="deviceLog.deviceId != null">device_id,</if>
+            <if test="deviceLog.deviceCurrent != null">device_current,</if>
+            <if test="deviceLog.devicePower != null">device_power,</if>
+            <if test="deviceLog.deviceVoltage != null">device_voltage,</if>
+            <if test="deviceLog.deviceStatus != null">device_status,</if>
+            <if test="deviceLog.logTime != null">log_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deviceLog.deviceLogId != null">#{deviceLog.deviceLogId},</if>
+            <if test="deviceLog.deviceId != null">#{deviceLog.deviceId},</if>
+            <if test="deviceLog.deviceCurrent != null">#{deviceLog.deviceCurrent},</if>
+            <if test="deviceLog.devicePower != null">#{deviceLog.devicePower},</if>
+            <if test="deviceLog.deviceVoltage != null">#{deviceLog.deviceVoltage},</if>
+            <if test="deviceLog.deviceStatus != null">#{deviceLog.deviceStatus},</if>
+            <if test="deviceLog.logTime != null">#{deviceLog.logTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDeviceLog" parameterType="DeviceLog">
+        update device_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="deviceCurrent != null">device_current = #{deviceCurrent},</if>
+            <if test="devicePower != null">device_power = #{devicePower},</if>
+            <if test="deviceVoltage != null">device_voltage = #{deviceVoltage},</if>
+            <if test="deviceStatus != null">device_status = #{deviceStatus},</if>
+            <if test="logTime != null">log_time = #{logTime},</if>
+        </trim>
+        where device_log_id = #{deviceLogId}
+    </update>
+
+    <update id="createNewDeviceLog" parameterType="String">
+        CREATE TABLE ${tableName} (
+        device_log_id int,
+        device_id varchar(255) NOT NULL,
+        device_current varchar(50),
+        device_power varchar(50),
+        device_voltage varchar(50),
+        device_status varchar(50),
+        log_time datetime NOT NULL,
+        PRIMARY KEY (device_id , log_time))
+    </update>
+
+    <delete id="deleteDeviceLogById" parameterType="Long">
+        delete from device_log where device_log_id = #{deviceLogId}
+    </delete>
+
+    <delete id="deleteDeviceLogByIds" parameterType="String">
+        delete from device_log where device_log_id in
+        <foreach item="deviceLogId" collection="array" open="(" separator="," close=")">
+            #{deviceLogId}
+        </foreach>
+    </delete>
+</mapper>

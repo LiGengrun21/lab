@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysPersonSampleMapper">
+    
+    <resultMap type="SysPersonSample" id="SysPersonSampleResult">
+        <result property="sampleId"    column="sample_id"    />
+        <result property="sampleNumber"    column="sample_number"    />
+    </resultMap>
+
+    <sql id="selectSysPersonSampleVo">
+        select sample_id, sample_number from sys_person_sample
+    </sql>
+
+    <select id="selectSysPersonSampleList" parameterType="SysPersonSample" resultMap="SysPersonSampleResult">
+        <include refid="selectSysPersonSampleVo"/>
+        <where>  
+            <if test="sampleNumber != null  and sampleNumber != ''"> and sample_number = #{sampleNumber}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysPersonSampleById" parameterType="Long" resultMap="SysPersonSampleResult">
+        <include refid="selectSysPersonSampleVo"/>
+        where sample_id = #{sampleId}
+    </select>
+        
+    <insert id="insertSysPersonSample" parameterType="SysPersonSample" useGeneratedKeys="true" keyProperty="sampleId">
+        insert into sys_person_sample
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sampleNumber != null">sample_number,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sampleNumber != null">#{sampleNumber},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysPersonSample" parameterType="SysPersonSample">
+        update sys_person_sample
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sampleNumber != null">sample_number = #{sampleNumber},</if>
+        </trim>
+        where sample_id = #{sampleId}
+    </update>
+
+    <delete id="deleteSysPersonSampleById" parameterType="Long">
+        delete from sys_person_sample where sample_id = #{sampleId}
+    </delete>
+
+    <delete id="deleteSysPersonSampleByIds" parameterType="String">
+        delete from sys_person_sample where sample_id in 
+        <foreach item="sampleId" collection="array" open="(" separator="," close=")">
+            #{sampleId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysLogsMapper">
+
+    <resultMap type="SysLogs" id="SysLogsResult">
+        <id     property="logsId"         column="logs_id"        />
+        <result property="userId"          column="user_id"          />
+        <result property="subscribeStartTime"   column="subscribe_start_time"  />
+        <result property="subscribeEndTime"         column="subscribe_end_time"         />
+        <result property="remark"  column="remark" />
+        <result property="type" column="type"/>
+        <result property="subscribeId" column="subscribe_id"/>
+        <result property="subscribeDate" column="subscribe_date"/>
+    </resultMap>
+
+    <sql id="selectLogs">
+        select logs_id, user_id, subscribe_start_time, subscribe_end_time, remark, type, subscribe_id, subscribe_date
+        from sys_logs
+    </sql>
+
+    <select id="selectLogsById" parameterType="Long" resultMap="SysLogsResult">
+        <include refid="selectLogs"></include>
+        <where>
+            <if test="logsId != null and logsId != ''">
+                AND logs_id = #{logsId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectLogsBySubscribeIdAndType" resultMap="SysLogsResult">
+        <include refid="selectLogs"></include>
+        <where>
+            <if test="type!=null">
+                AND type =#{type}
+            </if>
+            <if test="subscribeId!=null and subscribeId!=''">
+                AND subscribe_id =#{subscribeId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectLogsByUserId" parameterType="Long" resultMap="SysLogsResult">
+        <include refid="selectLogs"></include>
+        <where>
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertLogs" parameterType="SysLogs" useGeneratedKeys="true" keyProperty="logsId"  keyColumn="logs_id">
+        insert into sys_logs(user_id, subscribe_start_time, subscribe_end_time, remark,type,subscribe_id,subscribe_date)
+        values (#{userId},#{subscribeStartTime},#{subscribeEndTime},#{remark},#{type},#{subscribeId},#{subscribeDate})
+    </insert>
+
+    <delete id="deleteLogs" parameterType="Long">
+        delete from sys_logs
+        where logs_id = #{logsId}
+    </delete>
+
+    <delete id="deleteLogByTypeAndSubscribeDate">
+        delete from sys_logs where subscribe_date=#{subscribeDate} and type=#{type}
+    </delete>
+
+    <delete id="deleteLogByTypeAndSubscribeMonth">
+        delete from sys_logs where MONTH(subscribe_date) = #{month} and YEAR(subscribe_date) = #{year} and type=#{type}
+    </delete>
+
+    <update id="updateLogs" parameterType="SysLogs">
+        update sys_logs
+        <set>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId},
+            </if>
+            <if test="subscribeEndTime != null">
+                subscribe_end_time = #{subscribeEndTime},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+        </set>
+        where logs_id = #{logsId}
+    </update>
+</mapper>

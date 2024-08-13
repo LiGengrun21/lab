@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.UserCollectEquipmentMapper">
+    
+    <resultMap type="UserCollectEquipment" id="UserCollectEquipmentResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="equipmentId"    column="equipment_id"    />
+    </resultMap>
+
+    <sql id="selectUserCollectEquipmentVo">
+        select id, user_id, equipment_id from user_collect_equipment
+    </sql>
+
+    <select id="selectUserCollectEquipmentList" parameterType="UserCollectEquipment" resultMap="UserCollectEquipmentResult">
+        <include refid="selectUserCollectEquipmentVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="equipmentId != null "> and equipment_id = #{equipmentId}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserCollectEquipmentById" parameterType="Long" resultMap="UserCollectEquipmentResult">
+        <include refid="selectUserCollectEquipmentVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertUserCollectEquipment" parameterType="UserCollectEquipment" useGeneratedKeys="true" keyProperty="id">
+        insert into user_collect_equipment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="equipmentId != null">equipment_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="equipmentId != null">#{equipmentId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserCollectEquipment" parameterType="UserCollectEquipment">
+        update user_collect_equipment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="equipmentId != null">equipment_id = #{equipmentId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUserCollectEquipmentById" parameterType="Long">
+        delete from user_collect_equipment where id = #{id}
+    </delete>
+
+    <delete id="deleteUserCollectEquipmentByIds" parameterType="String">
+        delete from user_collect_equipment where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

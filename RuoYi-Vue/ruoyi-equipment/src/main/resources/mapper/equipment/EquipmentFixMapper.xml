@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.equipment.mapper.EquipmentFixMapper">
+
+    <resultMap type="EquipmentFix" id="EquipmentFixResult">
+        <result property="fixId"    column="fix_id"    />
+        <result property="equipmentId"    column="equipment_id"    />
+        <result property="fixStartTime"    column="fix_start_time"    />
+        <result property="fixEndTime"    column="fix_end_time"    />
+        <result property="fixReason"    column="fix_reason"    />
+        <result property="fixStatus" column="fix_status"/>
+        <association property="zjutEquipment" javaType="ZjutEquipment">
+            <id property="equipmentId" column="equipment_id"/>
+            <result property="equipmentName"    column="equipment_name"    />
+            <result property="equipmentSnNumber"    column="equipment_sn_number"    />
+            <result property="equipmentModel"    column="equipment_model"    />
+            <result property="equipmentStatus"    column="equipment_status"/>
+        </association>
+
+        <collection property="fixFileList" ofType="FixFile">
+            <result property="fixId"    column="fix_id"     />
+            <result property="fixFileId"    column="fix_file_id"    />
+            <result property="fixFileName"    column="fix_file_name"    />
+            <result property="fixFilePath"    column="fix_file_path"    />
+        </collection>
+
+    </resultMap>
+
+    <sql id="selectEquipmentFixVo">
+        SELECT equipment_fix.fix_id, equipment_fix.equipment_id, equipment_name, equipment_model, equipment_sn_number,  fix_reason,fix_status, fix_start_time, fix_end_time, equipment_status,
+               fix_file_id, fix_file_name, fix_file_path
+        FROM zjut_equipment
+                 JOIN equipment_fix
+                      ON equipment_fix.equipment_id = zjut_equipment.equipment_id
+                 LEFT JOIN fix_file
+                           ON fix_file.fix_id = equipment_fix.fix_id
+    </sql>
+
+    <select id="selectEquipmentFixList" parameterType="EquipmentFix" resultMap="EquipmentFixResult">
+        <include refid="selectEquipmentFixVo"/>
+        <where>
+            <if test="equipmentId != null "> and equipment_id = #{equipmentId}</if>
+            <if test="fixStartTime != null "> and fix_start_time = #{fixStartTime}</if>
+            <if test="fixEndTime != null "> and fix_end_time = #{fixEndTime}</if>
+            <if test="fixReason != null  and fixReason != ''"> and fix_reason = #{fixReason}</if>
+            <if test="fixStatus != null  and fixStatus != ''">and fix_status = #{fixStatus}</if>
+
+        </where>
+    </select>
+
+    <select id="selectEquipmentFixById" parameterType="Long" resultMap="EquipmentFixResult">
+        <include refid="selectEquipmentFixVo"/>
+        where equipment_fix.fix_id = #{fixId}
+    </select>
+
+    <insert id="insertEquipmentFix" parameterType="EquipmentFix">
+        insert into equipment_fix
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fixId != null">fix_id,</if>
+            <if test="equipmentId != null">equipment_id,</if>
+            <if test="fixStartTime != null">fix_start_time,</if>
+            <if test="fixEndTime != null">fix_end_time,</if>
+            <if test="fixReason != null">fix_reason,</if>
+            <if test="fixStatus != null">fix_status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fixId != null">#{fixId},</if>
+            <if test="equipmentId != null">#{equipmentId},</if>
+            <if test="fixStartTime != null">#{fixStartTime},</if>
+            <if test="fixEndTime != null">#{fixEndTime},</if>
+            <if test="fixReason != null">#{fixReason},</if>
+            <if test="fixStatus != null">#{fixStatus},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEquipmentFix" parameterType="EquipmentFix">
+        update equipment_fix
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id = #{equipmentId},</if>
+            <if test="fixStartTime != null">fix_start_time = #{fixStartTime},</if>
+            <if test="fixEndTime != null">fix_end_time = #{fixEndTime},</if>
+            <if test="fixReason != null">fix_reason = #{fixReason},</if>
+            <if test="fixStatus != null">fix_status = #{fixStatus},</if>
+        </trim>
+        where fix_id = #{fixId}
+    </update>
+
+    <delete id="deleteEquipmentFixById" parameterType="Long">
+        delete from equipment_fix where fix_id = #{fixId}
+    </delete>
+
+    <delete id="deleteEquipmentFixByIds" parameterType="String">
+        delete from equipment_fix where fix_id in
+        <foreach item="fixId" collection="array" open="(" separator="," close=")">
+            #{fixId}
+        </foreach>
+    </delete>
+</mapper>

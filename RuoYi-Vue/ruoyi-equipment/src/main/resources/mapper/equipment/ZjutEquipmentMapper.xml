@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.equipment.mapper.ZjutEquipmentMapper">
+
+    <resultMap type="ZjutEquipment" id="ZjutEquipmentResult">
+        <result property="equipmentId"    column="equipment_id"    />
+        <result property="equipmentName"    column="equipment_name"    />
+        <result property="equipmentPic"    column="pic_url"    />
+        <result property="equipmentCode" column="equipment_code"/>
+        <result property="innerBeginTime" column="inner_begin_time"/>
+        <result property="innerEndTime" column="inner_end_time"/>
+        <result property="outerBeginTime" column="outer_begin_time"/>
+        <result property="outerEndTime" column="outer_end_time"/>
+        <result property="userId"    column="admin_id"    />
+        <result property="equipmentSnNumber"    column="equipment_sn_number"    />
+        <result property="equipmentStatus"    column="equipment_status"    />
+        <result property="equipmentModel"    column="equipment_model"    />
+        <result property="equipmentSubscribeType"    column="equipment_subscribe_type"    />
+        <result property="allowCancel"    column="allow_cancel"    />
+        <result property="labId"    column="lab_id"    />
+        <result property="labName"    column="lab_num"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="autoOff"    column="auto_off"    />
+        <collection property="manager" javaType="java.util.List" ofType="SysUser"
+                    column="equipment_id" select="selectManagers"/>
+        <collection property="managerIds" javaType="java.util.List" ofType="Long"
+                    column="equipment_id" select="selectManagerIds"/>
+    </resultMap>
+
+    <resultMap id="UserResult" type="SysUser">
+        <id property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="nickName" column="nick_name"/>
+    </resultMap>
+
+    <resultMap id="ZjutEquipmentEquipmentSubscribeResult" type="ZjutEquipment" extends="ZjutEquipmentResult">
+        <collection property="equipmentSubscribeList" notNullColumn="equipment_subscribe_id" javaType="java.util.List" resultMap="EquipmentSubscribeResult" />
+    </resultMap>
+
+    <resultMap type="EquipmentSubscribe" id="EquipmentSubscribeResult">
+        <result property="equipmentSubscribeId"    column="equipment_subscribe_id"    />
+        <result property="equipmentId"    column="equipment_id"    />
+        <result property="equipmentName"    column="equipment_name"    />
+        <result property="subscribeStartTime"    column="subscribe_start_time"    />
+        <result property="subscribeEndTime"    column="subscribe_end_time"    />
+        <result property="subscribeDate"    column="subscribe_date"    />
+        <result property="subscribeName"    column="subscribe_name"    />
+        <result property="subscribeStatus"    column="subscribe_status"    />
+        <result property="subscribePhone"    column="subscribe_phone"    />
+    </resultMap>
+
+    <sql id="selectZjutEquipmentVo">
+        select equipment_id, equipment_name, pic_url, equipment_code, inner_begin_time,inner_end_time,outer_begin_time,outer_end_time,zjut_equipment.admin_id, user_name ,equipment_sn_number, equipment_status, equipment_subscribe_type, equipment_model, zjut_equipment.lab_id, lab_num, auto_off, device_id
+        from zjut_equipment
+        left join sys_user
+        on sys_user.user_id = zjut_equipment.admin_id
+        left join zjut_lab
+        on zjut_equipment.lab_id = zjut_lab.lab_id
+    </sql>
+
+    <sql id ="selectZjutEquipmentSubscribeVo">
+        select equipment_id,
+            equipment_name,
+            inner_begin_time,
+            inner_end_time,
+            outer_begin_time,
+            outer_end_time,
+            admin_id,
+            equipment_sn_number,
+            equipment_status,
+            equipment_model,
+            lab_id
+        from zjut_equipment
+        where equipment_subscribe_type=0
+    </sql>
+
+    <select id="selectManagers" parameterType="Long" resultType="SysUser">
+        select equipment_manager.user_id, user_name from equipment_manager, sys_user
+        where equipment_id = #{equipment_id} and equipment_manager.user_id = sys_user.user_id
+    </select>
+
+    <select id="selectManagerIds" parameterType="Long" resultType="Long">
+        select user_id from equipment_manager
+        where equipment_id = #{equipment_id}
+    </select>
+
+    <select id="selectZjutEquipmentList" parameterType="ZjutEquipment" resultMap="ZjutEquipmentResult">
+        <include refid="selectZjutEquipmentVo"/>
+        <where>
+            <if test="equipmentName != null  and equipmentName != ''"> and equipment_name like concat('%', #{equipmentName}, '%')</if>
+            <if test="equipmentCode != null  and equipmentCode != ''">and equipment_code like concat('%', #{equipmentCode}, '%')</if>
+
+            <if test="
+            innerBeginTime != null ">and inner_begin_time=#{innerBeginTime} </if>
+            <if test="innerEndTime != null  ">and inner_end_time=#{innerEndTime}</if>
+            <if test="outerBeginTime != null ">and outer_begin_time=#{outerBeginTime}</if>
+            <if test="outerEndTime != null  ">and outer_end_time=#{outerEndTime} </if>
+            <if test="
+            userId != null  and userId != ''"> and admin_id = #{userId}</if>
+            <if test="equipmentSnNumber != null  and equipmentSnNumber != ''"> and equipment_sn_number = #{equipmentSnNumber}</if>
+            <if test="equipmentStatus != null  and equipmentStatus != ''"> and equipment_status = #{equipmentStatus}</if>
+            <if test="equipmentSubscribeType != null  and equipmentSubscribeType != ''"> and equipment_subscribe_type = #{equipmentSubscribeType}</if>
+            <if test="equipmentModel != null  and equipmentModel != ''"> and equipment_model = #{equipmentModel}</if>
+            <if test="labId != null  and labId != ''"> and lab_id = #{labId}</if>
+            <if test="deviceId != null  and deviceId != ''"> and device_id = #{deviceId}</if>
+            <if test="autoOff != null  and autoOff != ''"> and auto_off = #{autoOff}</if>
+        </where>
+    </select>
+
+    <select id="selectZjutEquipmentSubscribeList" parameterType="ZjutEquipment" resultMap="ZjutEquipmentResult">
+        <include refid="selectZjutEquipmentSubscribeVo"/>
+    </select>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="equipmentName != null  and equipmentName != ''">and equipment_name like concat('%', #{equipmentName}, '%')</if>
+            <if test="equipmentCode != null  and equipmentCode != ''">and equipment_code like concat('%', #{equipmentCode}, '%')</if>
+            <if test="innerBeginTime != null ">and inner_begin_time=#{innerBeginTime} </if>
+            <if test="innerEndTime != null  ">and inner_end_time=#{innerEndTime}</if>
+            <if test="outerBeginTime != null ">and outer_begin_time=#{outerBeginTime}</if>
+            <if test="outerEndTime != null  ">and outer_end_time=#{outerEndTime} </if>
+            <if test="userId != null  and userId != ''"> and admin_id = #{userId}</if>
+            <if test="equipmentSnNumber != null  and equipmentSnNumber != ''">and equipment_sn_number = #{equipmentSnNumber}</if>
+            <if test="equipmentStatus != null  and equipmentStatus != ''">and equipment_status= #{equipmentStatus}</if>
+            <if test="equipmentModel != null  and equipmentModel != ''"> and equipment_model = #{equipmentModel}</if>
+            <if test="labId != null  and labId != ''"> and lab_id = #{labId}</if>
+            <if test="equipmentSubscribeType != null  and equipmentSubscribeType != ''">and equipmentSubscribeType = #{equipmentSubscribeType}</if>
+        </where>
+    </sql>
+    <select id="selectAmountByCondition" resultType="_int">
+        select count(*)
+        from zjut_equipment
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="selectZjutEquipmentByDeviceId" parameterType="String" resultMap="ZjutEquipmentResult">
+        select equipment_id, equipment_name, equipment_sn_number, equipment_status, equipment_subscribe_type, equipment_model, lab_id, device_id
+        from zjut_equipment
+        where device_id = #{deviceId}
+    </select>
+
+    <select id="selectZjutEquipmentById" parameterType="Long" resultMap="ZjutEquipmentEquipmentSubscribeResult">
+        select a.equipment_id, a.equipment_name, a.pic_url, a.equipment_code,a.inner_begin_time,a.inner_end_time,a.outer_begin_time,a.outer_end_time,a.admin_id, a.equipment_sn_number, a.equipment_status,a.equipment_subscribe_type, a.equipment_model,a.lab_id,a.auto_off,a.device_id,
+               b.equipment_subscribe_id, b.equipment_id, b.equipment_name, b.subscribe_start_time, b.subscribe_end_time, b.subscribe_name, b.subscribe_status, b.subscribe_date, b.subscribe_phone
+        from zjut_equipment a
+                 left join equipment_subscribe b on b.equipment_id = a.equipment_id
+        where a.equipment_id = #{equipmentId}
+        order by b.subscribe_start_time
+    </select>
+
+    <select id="selectEquipmentAndWhitelist" parameterType="Long" resultMap="ZjutEquipmentResult">
+        select a.equipment_id,
+            a.equipment_name,
+            a.equipment_code,
+            a.inner_begin_time,
+            a.inner_end_time,
+            a.outer_begin_time,
+            a.outer_end_time,
+            c.user_id,
+            c.nick_name
+        from zjut_equipment a
+                 left join equipment_whitelist b on a.equipment_id=b.equipment_id
+                 left join sys_user c on c.user_id=b.user_id
+        where a.equipment_id=#{equipmentId}
+    </select>
+
+    <insert id="insertZjutEquipment" parameterType="ZjutEquipment" useGeneratedKeys="true" keyProperty="equipmentId"
+            keyColumn="equipment_id">
+        insert into zjut_equipment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="equipmentId != null">equipment_id,</if>
+            <if test="equipmentName != null">equipment_name,</if>
+            <if test="equipmentCode != null">equipment_code,</if>
+            <if test="innerBeginTime != null ">inner_begin_time,</if>
+            <if test="innerEndTime != null  ">inner_end_time,</if>
+            <if test="outerBeginTime != null ">outer_begin_time,</if>
+            <if test="outerEndTime != null  ">outer_end_time, </if>
+            <if test="userId != null">admin_id,</if>
+            <if test="equipmentSnNumber != null">equipment_sn_number,</if>
+            <if test="equipmentStatus != null">equipment_status,</if>
+            <if test="equipmentSubscribeType != null">equipment_subscribe_type,</if>
+            <if test="equipmentModel != null">equipment_model,</if>
+            <if test="labId != null">lab_id,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="autoOff != null">auto_off,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="equipmentId != null">#{equipmentId},</if>
+            <if test="equipmentName != null">#{equipmentName},</if>
+            <if test="equipmentCode != null">#{equipmentCode},</if>
+            <if test="innerBeginTime != null ">#{innerBeginTime},</if>
+            <if test="innerEndTime != null  ">#{innerEndTime},</if>
+            <if test="outerBeginTime != null ">#{outerBeginTime},</if>
+            <if test="outerEndTime != null  ">#{outerEndTime}, </if>
+            <if test="userId != null">#{userId},</if>
+            <if test="equipmentSnNumber != null">#{equipmentSnNumber},</if>
+            <if test="equipmentStatus != null">#{equipmentStatus},</if>
+            <if test="allowCancel != null">#{allowCancel},</if>
+            <if test="equipmentSubscribeType != null">#{equipmentSubscribeType},</if>
+            <if test="equipmentModel != null">#{equipmentModel},</if>
+            <if test="labId != null">#{labId},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="autoOff != null">#{autoOff},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZjutEquipment" parameterType="ZjutEquipment">
+        update zjut_equipment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="equipmentName != null">equipment_name = #{equipmentName},</if>
+            <if test="equipmentCode != null">equipment_code = #{equipmentCode},</if>
+            <if test="innerBeginTime != null ">inner_begin_time=#{innerBeginTime}, </if>
+            <if test="innerEndTime != null  ">inner_end_time=#{innerEndTime},</if>
+            <if test="outerBeginTime != null ">outer_begin_time=#{outerBeginTime},</if>
+            <if test="outerEndTime != null  ">outer_end_time=#{outerEndTime}, </if>
+            <if test="userId != null">admin_id = #{userId},</if>
+            <if test="equipmentSnNumber != null">equipment_sn_number = #{equipmentSnNumber},</if>
+            <if test="equipmentStatus != null">equipment_status = #{equipmentStatus},</if>
+            <if test="allowCancel != null">allow_cancel = #{allowCancel},</if>
+            <if test="equipmentSubscribeType != null">equipment_subscribe_type = #{equipmentSubscribeType},</if>
+            <if test="equipmentModel != null">equipment_model = #{equipmentModel},</if>
+            <if test="labId != null">lab_id = #{labId},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="autoOff != null">auto_off = #{autoOff},</if>
+        </trim>
+        where equipment_id = #{equipmentId}
+    </update>
+
+    <update id="updateZjutEquipmentPic">
+        update zjut_equipment
+        set pic_url = #{equipmentPic}
+        where equipment_id = #{equipmentId}
+    </update>
+
+    <delete id="deleteZjutEquipmentById" parameterType="Long">
+        delete from zjut_equipment where equipment_id = #{equipmentId}
+    </delete>
+
+    <delete id="deleteZjutEquipmentByIds" parameterType="String">
+        delete from zjut_equipment where equipment_id in
+        <foreach item="equipmentId" collection="array" open="(" separator="," close=")">
+            #{equipmentId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEquipmentSubscribeByEquipmentIds" parameterType="String">
+        delete from equipment_subscribe where equipment_id in
+        <foreach item="equipmentId" collection="array" open="(" separator="," close=")">
+            #{equipmentId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEquipmentSubscribeByEquipmentId" parameterType="Long">
+        delete from equipment_subscribe where equipment_id = #{equipmentId}
+    </delete>
+
+    <delete id="deleteEquipmentManagerByEquipmentId" parameterType="Long">
+        delete from equipment_manager where equipment_id = #{equipmentId}
+    </delete>
+
+    <delete id="deleteEquipmentManagerByEquipmentIds">
+        delete from equipment_manager where equipment_id in
+        <foreach item="equipmentId" collection="array" open="(" separator="," close=")">
+            #{equipmentId}
+        </foreach>
+    </delete>
+
+    <insert id="batchEquipmentSubscribe">
+        insert into equipment_subscribe( equipment_subscribe_id, equipment_id, equipment_name, subscribe_start_time, subscribe_end_time, subscribe_name, subscribe_status) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.equipmentSubscribeId}, #{item.equipmentId}, #{item.equipmentName}, #{item.subscribeStartTime}, #{item.subscribeEndTime}, #{item.subscribeName}, #{item.subscribeStatus})
+        </foreach>
+    </insert>
+
+    <insert id="batchEquipmentManager">
+        insert into equipment_manager(equipment_id, user_id) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.equipmentId}, #{item.userId})
+        </foreach>
+    </insert>
+</mapper>

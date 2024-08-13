@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.equipment.mapper.EquipmentWhitelistMapper">
+
+    <resultMap type="EquipmentWhitelist" id="EquipmentWhitelistResult">
+        <result property="equipmentId"    column="equipment_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="addDate" column="add_date"/>
+        <result property="adderNickname" column="adder_nickname"/>
+    </resultMap>
+
+    <sql id="selectEquipmentWhitelistVo">
+        select equipment_id, user_id ,add_date,adder_nickname from equipment_whitelist
+    </sql>
+
+    <select id="selectEquipmentWhitelistList" parameterType="EquipmentWhitelist" resultMap="EquipmentWhitelistResult">
+        <include refid="selectEquipmentWhitelistVo"/>
+    </select>
+    <select id="selectEquipmentWhitelistById" parameterType="Long" resultMap="EquipmentWhitelistResult">
+        <include refid="selectEquipmentWhitelistVo"/>
+        where equipment_id = #{equipmentId}
+    </select>
+
+    <select id="selectOneEquipmentWhitelist" parameterType="EquipmentWhitelist" resultMap="EquipmentWhitelistResult">
+        <include refid="selectEquipmentWhitelistVo"/>
+        where equipment_id = #{equipmentId} and user_id = #{userId}
+    </select>
+
+    <insert id="batchEquipmentWhitelist">
+        insert into equipment_whitelist(equipment_id, user_id,add_date,adder_nickname) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.equipmentId},#{item.userId},#{item.addDate},#{item.adderNickname})
+        </foreach>
+    </insert>
+
+    <insert id="insertEquipmentWhitelist" parameterType="EquipmentWhitelist">
+        insert into equipment_whitelist(equipment_id, user_id,add_date,adder_nickname) values (#{equipmentId},#{userId},#{addDate},#{adderNickname})
+    </insert>
+
+    <update id="updateEquipmentWhitelist" parameterType="EquipmentWhitelist">
+        update equipment_whitelist
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="addDate != null">add_date = #{addDate},</if>
+            <if test="adderNickname != null">adder_nickname = #{adderNickname},</if>
+        </trim>
+        where equipment_id = #{equipmentId}
+    </update>
+
+    <delete id="deleteEquipmentWhitelist" parameterType="EquipmentWhitelist">
+        delete from equipment_whitelist where equipment_id=#{equipmentId} and user_id=#{userId}
+    </delete>
+
+    <delete id="deleteEquipmentWhitelistByIds">
+        delete from equipment_whitelist where equipment_id=#{equipmentId} and user_id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>

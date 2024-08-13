@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.train.mapper.TrainUserMapper">
+
+    <resultMap type="TrainUser" id="TrainUserResult">
+        <result property="trainId"    column="train_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userScore"    column="user_score"    />
+    </resultMap>
+
+    <sql id="selectTrainUserVo">
+        select train_id, user_id, user_score from train_user
+    </sql>
+
+    <select id="selectTrainUserList" parameterType="TrainUser" resultMap="TrainUserResult">
+        <include refid="selectTrainUserVo"/>
+        <where>
+            <if test="userScore != null "> and user_score = #{userScore}</if>
+        </where>
+    </select>
+
+    <select id="selectTrainUserById" parameterType="Long" resultMap="TrainUserResult">
+        <include refid="selectTrainUserVo"/>
+        where train_id = #{trainId} and user_id = #{userId}
+    </select>
+
+    <insert id="insertTrainUser" parameterType="TrainUser">
+        insert into train_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="trainId != null">train_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="userScore != null">user_score,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="trainId != null">#{trainId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="userScore != null">#{userScore},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTrainUser" parameterType="TrainUser">
+        update train_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userScore != null">user_score = #{userScore},</if>
+        </trim>
+        where train_id =#{trainId} and user_id=#{userId}
+    </update>
+
+    <delete id="deleteTrainUserById" parameterType="Long">
+        delete from train_user where train_id =#{trainId}
+    </delete>
+
+    <delete id="deleteTrainUser" parameterType="TrainUser">
+        delete from train_user
+        where train_id =#{trainId} and user_id=#{userId}
+    </delete>
+
+    <delete id="deleteTrainUserByIds" parameterType="String">
+        delete from train_user where train_id in
+        <foreach item="trainId" collection="array" open="(" separator="," close=")">
+            #{trainId}
+        </foreach>
+    </delete>
+</mapper>

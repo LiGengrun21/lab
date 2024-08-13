@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.file.mapper.FixFileMapper">
+    
+    <resultMap type="FixFile" id="FixFileResult">
+        <result property="fixFileId"    column="fix_file_id"    />
+        <result property="fixId"    column="fix_id"    />
+        <result property="fixFileName"    column="fix_file_name"    />
+        <result property="fixFilePath"    column="fix_file_path"    />
+    </resultMap>
+
+    <sql id="selectFixFileVo">
+        select fix_file_id, fix_id, fix_file_name, fix_file_path from fix_file
+    </sql>
+
+    <select id="selectFixFileList" parameterType="FixFile" resultMap="FixFileResult">
+        <include refid="selectFixFileVo"/>
+        <where>  
+            <if test="fixId != null "> and fix_id = #{fixId}</if>
+            <if test="fixFileName != null  and fixFileName != ''"> and fix_file_name like concat('%', #{fixFileName}, '%')</if>
+            <if test="fixFilePath != null  and fixFilePath != ''"> and fix_file_path = #{fixFilePath}</if>
+        </where>
+    </select>
+    
+    <select id="selectFixFileById" parameterType="Long" resultMap="FixFileResult">
+        <include refid="selectFixFileVo"/>
+        where fix_file_id = #{fixFileId}
+    </select>
+        
+    <insert id="insertFixFile" parameterType="FixFile">
+        insert into fix_file
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fixFileId != null">fix_file_id,</if>
+            <if test="fixId != null">fix_id,</if>
+            <if test="fixFileName != null">fix_file_name,</if>
+            <if test="fixFilePath != null">fix_file_path,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fixFileId != null">#{fixFileId},</if>
+            <if test="fixId != null">#{fixId},</if>
+            <if test="fixFileName != null">#{fixFileName},</if>
+            <if test="fixFilePath != null">#{fixFilePath},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFixFile" parameterType="FixFile">
+        update fix_file
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fixId != null">fix_id = #{fixId},</if>
+            <if test="fixFileName != null">fix_file_name = #{fixFileName},</if>
+            <if test="fixFilePath != null">fix_file_path = #{fixFilePath},</if>
+        </trim>
+        where fix_file_id = #{fixFileId}
+    </update>
+
+    <delete id="deleteFixFileById" parameterType="Long">
+        delete from fix_file where fix_file_id = #{fixFileId}
+    </delete>
+
+    <delete id="deleteFixFileByIds" parameterType="String">
+        delete from fix_file where fix_file_id in 
+        <foreach item="fixFileId" collection="array" open="(" separator="," close=")">
+            #{fixFileId}
+        </foreach>
+    </delete>
+</mapper>

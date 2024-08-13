@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysMicroMapper">
+    
+    <resultMap type="SysMicro" id="SysMicroResult">
+        <result property="microId"    column="micro_id"    />
+        <result property="microName"    column="micro_name"    />
+        <result property="microDamage"    column="micro_damage"    />
+        <result property="microMedicinal"    column="micro_ medicinal"    />
+        <result property="microVaccine"    column="micro_ vaccine"    />
+    </resultMap>
+
+    <sql id="selectSysMicroVo">
+        select micro_id, micro_name, micro_damage, micro_medicinal, micro_vaccine from sys_micro
+    </sql>
+
+    <select id="selectSysMicroList" parameterType="SysMicro" resultMap="SysMicroResult">
+        <include refid="selectSysMicroVo"/>
+        <where>  
+            <if test="microName != null  and microName != ''"> and micro_name like concat('%', #{microName}, '%')</if>
+            <if test="microDamage != null  and microDamage != ''"> and micro_damage = #{microDamage}</if>
+            <if test="microMedicinal != null  and microMedicinal != ''"> and micro_ medicinal = #{microMedicinal}</if>
+            <if test="microVaccine != null  and microVaccine != ''"> and micro_ vaccine = #{microVaccine}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysMicroById" parameterType="Long" resultMap="SysMicroResult">
+        <include refid="selectSysMicroVo"/>
+        where micro_id = #{microId}
+    </select>
+        
+    <insert id="insertSysMicro" parameterType="SysMicro" useGeneratedKeys="true" keyProperty="microId">
+        insert into sys_micro
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="microName != null">micro_name,</if>
+            <if test="microDamage != null">micro_damage,</if>
+            <if test="microMedicinal != null">micro_ medicinal,</if>
+            <if test="microVaccine != null">micro_ vaccine,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="microName != null">#{microName},</if>
+            <if test="microDamage != null">#{microDamage},</if>
+            <if test="microMedicinal != null">#{microMedicinal},</if>
+            <if test="microVaccine != null">#{microVaccine},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysMicro" parameterType="SysMicro">
+        update sys_micro
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="microName != null">micro_name = #{microName},</if>
+            <if test="microDamage != null">micro_damage = #{microDamage},</if>
+            <if test="microMedicinal != null">micro_ medicinal = #{microMedicinal},</if>
+            <if test="microVaccine != null">micro_ vaccine = #{microVaccine},</if>
+        </trim>
+        where micro_id = #{microId}
+    </update>
+
+    <delete id="deleteSysMicroById" parameterType="Long">
+        delete from sys_micro where micro_id = #{microId}
+    </delete>
+
+    <delete id="deleteSysMicroByIds" parameterType="String">
+        delete from sys_micro where micro_id in 
+        <foreach item="microId" collection="array" open="(" separator="," close=")">
+            #{microId}
+        </foreach>
+    </delete>
+</mapper>

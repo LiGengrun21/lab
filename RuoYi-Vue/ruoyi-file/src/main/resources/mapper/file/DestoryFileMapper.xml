@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.file.mapper.DestoryFileMapper">
+
+    <resultMap type="DestoryFile" id="DestoryFileResult">
+        <result property="destoryFileId"    column="destory_file_id"    />
+        <result property="destoryId"    column="destory_id"     />
+        <result property="destoryFileName"    column="destory_file_name"    />
+        <result property="destoryFilePath"    column="destory_file_path"    />
+    </resultMap>
+
+    <sql id="selectDestoryFileVo">
+        select destory_file_id, destory_file_name, destory_file_path, destory_id from destory_file
+    </sql>
+
+    <select id="selectDestoryFileList" parameterType="DestoryFile" resultMap="DestoryFileResult">
+        <include refid="selectDestoryFileVo"/>
+        <where>
+            <if test="destoryFileName != null  and destoryFileName != ''"> and destory_file_name like concat('%', #{destoryFileName}, '%')</if>
+            <if test="destoryFilePath != null  and destoryFilePath != ''"> and destory_file_path = #{destoryFilePath}</if>
+        </where>
+    </select>
+
+    <select id="selectDestoryFileById" parameterType="Long" resultMap="DestoryFileResult">
+        <include refid="selectDestoryFileVo"/>
+        where destory_file_id = #{destoryFileId}
+    </select>
+
+    <insert id="insertDestoryFile" parameterType="DestoryFile">
+        insert into destory_file
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="destoryId != null">destory_id,</if>
+            <if test="destoryFileName != null">destory_file_name,</if>
+            <if test="destoryFilePath != null">destory_file_path,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="destoryId != null">#{destoryId},</if>
+            <if test="destoryFileName != null">#{destoryFileName},</if>
+            <if test="destoryFilePath != null">#{destoryFilePath},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDestoryFile" parameterType="DestoryFile">
+        update destory_file
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="destoryId != null">destory_id = #{destoryId},</if>
+            <if test="destoryFileName != null">destory_file_name = #{destoryFileName},</if>
+            <if test="destoryFilePath != null">destory_file_path = #{destoryFilePath},</if>
+        </trim>
+        where destory_file_id = #{destoryFileId}
+    </update>
+
+    <delete id="deleteDestoryFileById" parameterType="Long">
+        delete from destory_file where destory_file_id = #{destoryFileId}
+    </delete>
+
+    <delete id="deleteDestoryFileByIds" parameterType="String">
+        delete from destory_file where destory_file_id in
+        <foreach item="destoryFileId" collection="array" open="(" separator="," close=")">
+            #{destoryFileId}
+        </foreach>
+    </delete>
+</mapper>

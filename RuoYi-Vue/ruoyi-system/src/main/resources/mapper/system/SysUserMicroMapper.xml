@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysUserMicroMapper">
+    
+    <resultMap type="SysUserMicro" id="SysUserMicroResult">
+        <result property="userId"    column="user_id"    />
+        <result property="microId"    column="micro_id"    />
+    </resultMap>
+
+    <sql id="selectSysUserMicroVo">
+        select user_id, micro_id from sys_user_micro
+    </sql>
+
+    <select id="selectSysUserMicroList" parameterType="SysUserMicro" resultMap="SysUserMicroResult">
+        <include refid="selectSysUserMicroVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="microId != null "> and micro_id = #{microId}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysUserMicroById" parameterType="Long" resultMap="SysUserMicroResult">
+        <include refid="selectSysUserMicroVo"/>
+        where user_id = #{userId}
+    </select>
+        
+    <insert id="insertSysUserMicro" parameterType="SysUserMicro">
+        insert into sys_user_micro
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="microId != null">micro_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="microId != null">#{microId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysUserMicro" parameterType="SysUserMicro">
+        update sys_user_micro
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="microId != null">micro_id = #{microId},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteSysUserMicroById" parameterType="Long">
+        delete from sys_user_micro where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteSysUserMicroByIds" parameterType="String">
+        delete from sys_user_micro where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>
